@@ -1,0 +1,96 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isActiveUser() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isActive == true;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      // Users can read their own document; admins can read all
+      allow read: if isOwner(userId) || isAdmin();
+      // Users can create their own document on registration
+      allow create: if isOwner(userId);
+      // Users can update their own profile; admins can update any
+      allow update: if isOwner(userId) || isAdmin();
+      // Only admins can delete users
+      allow delete: if isAdmin();
+    }
+
+    // Dentists collection
+    match /dentists/{dentistId} {
+      // Anyone authenticated can read dentists
+      allow read: if isAuthenticated();
+      // Only admins can write dentists
+      allow write: if isAdmin();
+    }
+
+    // Services collection
+    match /services/{serviceId} {
+      // Anyone authenticated can read services
+      allow read: if isAuthenticated();
+      // Only admins can write services
+      allow write: if isAdmin();
+    }
+
+    // Appointments collection
+    match /appointments/{appointmentId} {
+      // Patient can read their own appointments; dentist admin can read all
+      allow read: if isAuthenticated() &&
+        (resource.data.patientId == request.auth.uid || isAdmin());
+      // Active patients can create appointments for themselves
+      allow create: if isActiveUser() &&
+        request.resource.data.patientId == request.auth.uid;
+      // Patients can update their own appointments (cancel); admins can update all
+      allow update: if isAuthenticated() &&
+        (resource.data.patientId == request.auth.uid || isAdmin());
+      // Only admins can delete appointments
+      allow delete: if isAdmin();
+    }
+
+    // Reviews collection
+    match /reviews/{reviewId} {
+      // Anyone authenticated can read reviews
+      allow read: if isAuthenticated();
+      // Active patients can create reviews for themselves
+      allow create: if isActiveUser() &&
+        request.resource.data.patientId == request.auth.uid;
+      // Patients can update their own reviews; admins can update any
+      allow update: if isAuthenticated() &&
+        (resource.data.patientId == request.auth.uid || isAdmin());
+      // Patients can delete their own reviews; admins can delete any
+      allow delete: if isAuthenticated() &&
+        (resource.data.patientId == request.auth.uid || isAdmin());
+    }
+
+    // Notifications collection
+    match /notifications/{notificationId} {
+      // Users can read their own notifications; admins can read all
+      allow read: if isAuthenticated() &&
+        (resource.data.receiverId == request.auth.uid || isAdmin());
+      // Only admins and server can create notifications
+      allow create: if isAdmin();
+      // Users can update (mark as read) their own notifications
+      allow update: if isAuthenticated() &&
+        resource.data.receiverId == request.auth.uid;
+      // Only admins can delete notifications
+      allow delete: if isAdmin();
+    }
+  }
+}

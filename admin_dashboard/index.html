@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dental Clinic — Admin Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════ AUTH ═══════════════════════════════ -->
+<div id="auth-overlay">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="icon">🦷</div>
+      <h1>Dental Clinic Admin</h1>
+      <p>Sign in to manage your clinic</p>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input id="auth-email" type="email" class="form-control" placeholder="admin@clinic.com" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input id="auth-password" type="password" class="form-control" placeholder="••••••••" />
+    </div>
+    <div id="auth-error" style="color:var(--error);font-size:13px;margin-bottom:12px;display:none;"></div>
+    <button class="btn btn-primary" style="width:100%;padding:12px;" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ APP ═══════════════════════════════ -->
+<div id="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>🦷 Dental Clinic</h2>
+      <p>Admin Dashboard</p>
+    </div>
+    <nav class="nav">
+      <div class="nav-item active" onclick="showPage('dashboard')">
+        <span class="icon">📊</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="showPage('dentists')">
+        <span class="icon">👨‍⚕️</span> Dentists
+      </div>
+      <div class="nav-item" onclick="showPage('appointments')">
+        <span class="icon">📅</span> Appointments
+      </div>
+      <div class="nav-item" onclick="showPage('services')">
+        <span class="icon">🩺</span> Services
+      </div>
+      <div class="nav-item" onclick="showPage('users')">
+        <span class="icon">👥</span> Patients
+      </div>
+      <div class="nav-item" onclick="showPage('reviews')">
+        <span class="icon">⭐</span> Reviews
+      </div>
+      <div class="nav-item" onclick="showPage('statistics')">
+        <span class="icon">📈</span> Statistics
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="doLogout()">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="topbar">
+      <h2 id="page-title">Dashboard</h2>
+      <div class="user-info">
+        <div class="avatar" id="user-avatar">A</div>
+        <span id="user-email" style="font-size:13px;color:var(--text-secondary);"></span>
+      </div>
+    </header>
+    <div class="content">
+
+      <!-- ──────── DASHBOARD ──────── -->
+      <div id="page-dashboard" class="page active">
+        <div class="stats-grid" id="stats-grid">
+          <div class="loading"><div class="spinner"></div>Loading stats…</div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Recent Appointments</h3></div>
+          <div id="recent-appointments-body"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- ──────── DENTISTS ──────── -->
+      <div id="page-dentists" class="page">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+          <button class="btn btn-primary" onclick="openDentistModal()">+ Add Dentist</button>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Dentists</h3></div>
+          <div id="dentists-body"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- ──────── APPOINTMENTS ──────── -->
+      <div id="page-appointments" class="page">
+        <div class="filters">
+          <select id="appt-filter-status" onchange="loadAppointments()">
+            <option value="">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Completed">Completed</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Appointments</h3></div>
+          <div id="appointments-body"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- ──────── SERVICES ──────── -->
+      <div id="page-services" class="page">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+          <button class="btn btn-secondary" onclick="openServiceModal()">+ Add Service</button>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Services</h3></div>
+          <div id="services-body"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- ──────── USERS ──────── -->
+      <div id="page-users" class="page">
+        <div class="card">
+          <div class="card-header"><h3>Patients</h3></div>
+          <div id="users-body"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- ──────── REVIEWS ──────── -->
+      <div id="page-reviews" class="page">
+        <div class="card">
+          <div class="card-header"><h3>Reviews</h3></div>
+          <div id="reviews-body"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- ──────── STATISTICS ──────── -->
+      <div id="page-statistics" class="page">
+        <div class="stats-grid" id="stat-detailed-grid">
+          <div class="loading"><div class="spinner"></div>Loading…</div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Appointment Status Breakdown</h3></div>
+          <div id="stat-breakdown-body"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div>
+
+<!-- ═══════════════════ MODALS ═══════════════════ -->
+
+<!-- Dentist Modal -->
+<div id="dentist-modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="dentist-modal-title">Add Dentist</h3>
+      <button class="modal-close" onclick="closeModal('dentist-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="dentist-id" />
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input id="d-name" type="text" class="form-control" placeholder="Dr. Ahmed Ali" />
+        </div>
+        <div class="form-group">
+          <label>Specialization</label>
+          <input id="d-spec" type="text" class="form-control" placeholder="Orthodontist" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Experience (years)</label>
+          <input id="d-exp" type="number" class="form-control" min="0" placeholder="5" />
+        </div>
+        <div class="form-group">
+          <label>Image URL</label>
+          <input id="d-img" type="url" class="form-control" placeholder="https://…" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="d-desc" class="form-control" rows="3" placeholder="Brief bio…"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Work Start (HH:MM)</label>
+          <input id="d-start" type="text" class="form-control" placeholder="09:00" />
+        </div>
+        <div class="form-group">
+          <label>Work End (HH:MM)</label>
+          <input id="d-end" type="text" class="form-control" placeholder="17:00" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Working Days (comma-separated)</label>
+        <input id="d-days" type="text" class="form-control" placeholder="Monday,Tuesday,Wednesday,Thursday,Friday" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('dentist-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDentist()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Service Modal -->
+<div id="service-modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="service-modal-title">Add Service</h3>
+      <button class="modal-close" onclick="closeModal('service-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="service-id" />
+      <div class="form-row">
+        <div class="form-group">
+          <label>Title</label>
+          <input id="s-title" type="text" class="form-control" placeholder="Teeth Whitening" />
+        </div>
+        <div class="form-group">
+          <label>Price (SAR)</label>
+          <input id="s-price" type="number" class="form-control" min="0" placeholder="200" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="s-desc" class="form-control" rows="3" placeholder="Service description…"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Image URL</label>
+        <input id="s-img" type="url" class="form-control" placeholder="https://…" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('service-modal')">Cancel</button>
+      <button class="btn btn-secondary" onclick="saveService()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div id="confirm-modal" class="modal-backdrop hidden">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-header">
+      <h3>Confirm Delete</h3>
+      <button class="modal-close" onclick="closeModal('confirm-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirm-msg" style="color:var(--text-secondary);font-size:14px;line-height:1.6;">Are you sure?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('confirm-modal')">Cancel</button>
+      <button id="confirm-ok" class="btn btn-error">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════ FIREBASE & JS ═══════════════════════════════ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import {
+    getFirestore, collection, doc,
+    getDocs, getDoc, addDoc, updateDoc, deleteDoc,
+    query, where, orderBy, limit, Timestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCSkhwNEs_UGZEFIABQmuHHjx3iZh5nfbc",
+    authDomain: "dental-clinic-app-ae55c.firebaseapp.com",
+    projectId: "dental-clinic-app-ae55c",
+    storageBucket: "dental-clinic-app-ae55c.appspot.com",
+    appId: "1:980672004467:web:80fba3d00de1324f894506",
+    measurementId: "G-EHMV7JCTF2"
+  };
+
+  const _app  = initializeApp(firebaseConfig);
+  const _auth = getAuth(_app);
+  const _db   = getFirestore(_app);
+
+  window._auth = _auth;
+  window._db   = _db;
+  window._firebase = { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit, Timestamp, signInWithEmailAndPassword, signOut };
+
+  onAuthStateChanged(_auth, async (user) => {
+    if (!user) {
+      document.getElementById('auth-overlay').style.display = 'flex';
+      document.getElementById('app').classList.remove('visible');
+      return;
+    }
+    try {
+      const snap = await getDoc(doc(_db, 'users', user.uid));
+      if (!snap.exists() || snap.data().role !== 'admin') {
+        await signOut(_auth);
+        window.showToast('Access denied — admin only.', 'error');
+        document.getElementById('auth-overlay').style.display = 'flex';
+        document.getElementById('app').classList.remove('visible');
+        return;
+      }
+    } catch (e) {
+      window.showToast('Error verifying role.', 'error');
+      document.getElementById('auth-overlay').style.display = 'flex';
+      document.getElementById('app').classList.remove('visible');
+      return;
+    }
+    document.getElementById('user-email').textContent = user.email;
+    document.getElementById('user-avatar').textContent = (user.email[0] || 'A').toUpperCase();
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+    window.loadDashboard();
+  });
+</script>
+<script src="app.js" defer></script>
+</body>
+</html>
