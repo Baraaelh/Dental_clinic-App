@@ -12,6 +12,7 @@ class AppointmentModel {
     required this.status,
     this.createdAt,
     this.isPaid = false,
+    this.slotId,
   });
 
   final String id;
@@ -24,6 +25,10 @@ class AppointmentModel {
   final String status;
   final DateTime? createdAt;
   final bool isPaid;
+
+  /// Id of the matching `booked_slots` document. Null for appointments
+  /// created before slot reservations were introduced.
+  final String? slotId;
 
   factory AppointmentModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
@@ -38,6 +43,7 @@ class AppointmentModel {
       status: data['status'] as String? ?? 'Pending',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       isPaid: data['isPaid'] as bool? ?? false,
+      slotId: data['slotId'] as String?,
     );
   }
 
@@ -53,6 +59,7 @@ class AppointmentModel {
       status: data['status'] as String? ?? 'Pending',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       isPaid: data['isPaid'] as bool? ?? false,
+      slotId: data['slotId'] as String?,
     );
   }
 
@@ -69,6 +76,7 @@ class AppointmentModel {
       'createdAt': createdAt != null
           ? Timestamp.fromDate(createdAt!)
           : FieldValue.serverTimestamp(),
+      if (slotId != null) 'slotId': slotId,
     };
   }
 
@@ -83,6 +91,7 @@ class AppointmentModel {
     String? status,
     DateTime? createdAt,
     bool? isPaid,
+    String? slotId,
   }) {
     return AppointmentModel(
       id: id ?? this.id,
@@ -95,6 +104,7 @@ class AppointmentModel {
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       isPaid: isPaid ?? this.isPaid,
+      slotId: slotId ?? this.slotId,
     );
   }
 

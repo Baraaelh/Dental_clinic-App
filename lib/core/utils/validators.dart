@@ -84,6 +84,10 @@ class Validators {
     if (value.trim().length < 10) {
       return shortMsg ?? 'Comment must be at least 10 characters';
     }
+    // Firestore rules reject comments longer than this.
+    if (value.trim().length > 1000) {
+      return 'Comment must be at most 1000 characters';
+    }
     return null;
   }
 

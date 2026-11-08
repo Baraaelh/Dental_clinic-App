@@ -36,28 +36,54 @@ class ReviewRemoteDatasource {
     }
   }
 
+  /// One review per patient per dentist.
+  static String reviewIdFor(String patientId, String dentistId) =>
+      '${patientId}_$dentistId';
+
+  /// Saves the review and updates the dentist's rating in one transaction.
+  /// Firestore rules check both writes together, so a patient can only bump
+  /// the rating by exactly the value of the review they are creating.
   Future<String> addReview(ReviewModel review) async {
+    final reviewRef =
+        _collection.doc(reviewIdFor(review.patientId, review.dentistId));
+    final dentistRef = _firestore
+        .collection(AppConstants.dentistsCollection)
+        .doc(review.dentistId);
+
     try {
-      final ref = await _collection.add(review.toMap());
+      await _firestore.runTransaction((tx) async {
+        final existing = await tx.get(reviewRef);
+        if (existing.exists) {
+          throw const ValidationException('You have already reviewed this dentist');
+        }
+        final dentist = await tx.get(dentistRef);
+        if (!dentist.exists) throw const NotFoundException('Dentist not found');
 
-      // Recalculate dentist's average rating
-      final allReviews = await getDentistReviews(review.dentistId);
-      final total = allReviews.length + 1;
-      final sum =
-          allReviews.fold<double>(0, (a, r) => a + r.rating) + review.rating;
-      final avg = sum / total;
+        final data = dentist.data()!;
+        final oldTotal = (data['totalReviews'] as num?) ?? 0;
+        // Older dentist documents have no ratingSum; derive it the same way
+        // the security rules do.
+        final oldSum = (data['ratingSum'] as num?) ??
+            ((data['averageRating'] as num?) ?? 0) * oldTotal;
+        final newTotal = oldTotal + 1;
+        final newSum = oldSum + review.rating;
 
-      await _firestore
-          .collection(AppConstants.dentistsCollection)
-          .doc(review.dentistId)
-          .update({'averageRating': avg, 'totalReviews': total});
-
-      return ref.id;
+        tx.set(reviewRef, review.toMap());
+        tx.update(dentistRef, {
+          'ratingSum': newSum,
+          'totalReviews': newTotal,
+          'averageRating': newSum / newTotal,
+        });
+      });
+      return reviewRef.id;
+    } on AppException {
+      rethrow;
     } catch (e) {
       throw ServerException('Failed to add review: $e');
     }
   }
 
+  /// Admin only. Recomputes the dentist's rating from the remaining reviews.
   Future<void> deleteReview(String id) async {
     try {
       final doc = await _collection.doc(id).get();
@@ -66,24 +92,16 @@ class ReviewRemoteDatasource {
       final review = ReviewModel.fromFirestore(doc);
       await _collection.doc(id).delete();
 
-      // Recalculate dentist rating
       final remaining = await getDentistReviews(review.dentistId);
-      if (remaining.isEmpty) {
-        await _firestore
-            .collection(AppConstants.dentistsCollection)
-            .doc(review.dentistId)
-            .update({'averageRating': 0.0, 'totalReviews': 0});
-      } else {
-        final sum = remaining.fold<double>(0, (a, r) => a + r.rating);
-        final avg = sum / remaining.length;
-        await _firestore
-            .collection(AppConstants.dentistsCollection)
-            .doc(review.dentistId)
-            .update({
-          'averageRating': avg,
-          'totalReviews': remaining.length,
-        });
-      }
+      final sum = remaining.fold<double>(0, (a, r) => a + r.rating);
+      await _firestore
+          .collection(AppConstants.dentistsCollection)
+          .doc(review.dentistId)
+          .update({
+        'ratingSum': sum,
+        'totalReviews': remaining.length,
+        'averageRating': remaining.isEmpty ? 0.0 : sum / remaining.length,
+      });
     } catch (e) {
       throw ServerException('Failed to delete review: $e');
     }
@@ -103,6 +121,11 @@ class ReviewRemoteDatasource {
   }
 
   Future<bool> hasCompletedAppointment(
+          String patientId, String dentistId) async =>
+      await getCompletedAppointmentId(patientId, dentistId) != null;
+
+  /// Id of a completed appointment between this patient and dentist, if any.
+  Future<String?> getCompletedAppointmentId(
       String patientId, String dentistId) async {
     try {
       final snapshot = await _firestore
@@ -112,9 +135,9 @@ class ReviewRemoteDatasource {
           .where('status', isEqualTo: AppConstants.statusCompleted)
           .limit(1)
           .get();
-      return snapshot.docs.isNotEmpty;
+      return snapshot.docs.isEmpty ? null : snapshot.docs.first.id;
     } catch (_) {
-      return false;
+      return null;
     }
   }
 

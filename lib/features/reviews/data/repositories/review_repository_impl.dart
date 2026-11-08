@@ -28,6 +28,10 @@ class ReviewRepositoryImpl implements ReviewRepository {
       _datasource.hasCompletedAppointment(patientId, dentistId);
 
   @override
+  Future<String?> getCompletedAppointmentId(String patientId, String dentistId) =>
+      _datasource.getCompletedAppointmentId(patientId, dentistId);
+
+  @override
   Future<Map<int, int>> getRatingBreakdown(String dentistId) =>
       _datasource.getRatingBreakdown(dentistId);
 }

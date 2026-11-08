@@ -7,6 +7,7 @@ class AppConstants {
   static const String appointmentsCollection = 'appointments';
   static const String reviewsCollection = 'reviews';
   static const String notificationsCollection = 'notifications';
+  static const String bookedSlotsCollection = 'booked_slots';
 
   static const String rolePatient = 'patient';
   static const String roleAdmin = 'admin';

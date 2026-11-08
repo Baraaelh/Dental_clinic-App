@@ -9,6 +9,7 @@ class ReviewModel {
     required this.dentistId,
     required this.rating,
     required this.comment,
+    this.appointmentId = '',
     this.createdAt,
   });
 
@@ -19,6 +20,9 @@ class ReviewModel {
   final String dentistId;
   final double rating;
   final String comment;
+
+  /// The completed appointment that entitles the patient to review.
+  final String appointmentId;
   final DateTime? createdAt;
 
   factory ReviewModel.fromFirestore(DocumentSnapshot doc) {
@@ -31,6 +35,7 @@ class ReviewModel {
       dentistId: data['dentistId'] as String? ?? '',
       rating: (data['rating'] as num?)?.toDouble() ?? 0.0,
       comment: data['comment'] as String? ?? '',
+      appointmentId: data['appointmentId'] as String? ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
     );
   }
@@ -43,6 +48,7 @@ class ReviewModel {
       'dentistId': dentistId,
       'rating': rating,
       'comment': comment,
+      'appointmentId': appointmentId,
       'createdAt': FieldValue.serverTimestamp(),
     };
   }

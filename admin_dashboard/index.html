@@ -278,7 +278,7 @@
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import {
     getFirestore, collection, doc,
-    getDocs, getDoc, addDoc, updateDoc, deleteDoc,
+    getDocs, getDoc, addDoc, updateDoc, deleteDoc, writeBatch,
     query, where, orderBy, limit, Timestamp
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -297,7 +297,7 @@
 
   window._auth = _auth;
   window._db   = _db;
-  window._firebase = { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit, Timestamp, signInWithEmailAndPassword, signOut };
+  window._firebase = { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, writeBatch, query, where, orderBy, limit, Timestamp, signInWithEmailAndPassword, signOut };
 
   onAuthStateChanged(_auth, async (user) => {
     if (!user) {

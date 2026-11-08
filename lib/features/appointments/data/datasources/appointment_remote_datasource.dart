@@ -80,18 +80,86 @@ class AppointmentRemoteDatasource {
     }
   }
 
+  CollectionReference<Map<String, dynamic>> get _slots =>
+      _firestore.collection(AppConstants.bookedSlotsCollection);
+
+  /// Deterministic id of the `booked_slots` document for a dentist/day/time.
+  /// Only one document can exist per id, which is what blocks double booking.
+  static String slotIdFor(String dentistId, DateTime date, String time) =>
+      '${dentistId}_${slotDateKey(date)}_$time';
+
+  /// Calendar day as `yyyy-MM-dd`, using the date's own fields so the result
+  /// is the same for UTC dates (from the calendar widget) and local dates.
+  static String slotDateKey(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}-'
+      '${date.month.toString().padLeft(2, '0')}-'
+      '${date.day.toString().padLeft(2, '0')}';
+
+  /// Books the appointment and reserves its time slot in one transaction.
+  /// Throws [SlotUnavailableException] if someone else already holds the slot.
   Future<String> createAppointment(AppointmentModel appointment) async {
+    final day = DateTime(
+      appointment.date.year,
+      appointment.date.month,
+      appointment.date.day,
+    );
+    final slotId = slotIdFor(appointment.dentistId, day, appointment.time);
+    final slotRef = _slots.doc(slotId);
+    final apptRef = _collection.doc();
+
     try {
-      final ref = await _collection.add(appointment.toMap());
-      return ref.id;
+      await _firestore.runTransaction((tx) async {
+        final slot = await tx.get(slotRef);
+        if (slot.exists) throw const SlotUnavailableException();
+
+        tx.set(
+          apptRef,
+          appointment.copyWith(date: day, slotId: slotId).toMap(),
+        );
+        tx.set(slotRef, {
+          'dentistId': appointment.dentistId,
+          'date': slotDateKey(day),
+          'time': appointment.time,
+          'appointmentId': apptRef.id,
+        });
+      });
+      return apptRef.id;
+    } on SlotUnavailableException {
+      rethrow;
+    } on FirebaseException catch (e) {
+      // If another patient grabbed the slot between our read and the commit,
+      // the rules reject the slot write (it is no longer a create).
+      if (e.code == 'permission-denied' || e.code == 'aborted') {
+        final taken = await _slots.doc(slotId).get().then((d) => d.exists,
+            onError: (_) => false);
+        if (taken) throw const SlotUnavailableException();
+      }
+      throw ServerException('Failed to create appointment: ${e.message}');
     } catch (e) {
       throw ServerException('Failed to create appointment: $e');
     }
   }
 
+  /// Changes an appointment's status. Cancelling or rejecting frees the
+  /// reserved slot so another patient can book it.
   Future<void> updateAppointmentStatus(String id, String status) async {
+    final releasesSlot = status == AppConstants.statusCancelled ||
+        status == AppConstants.statusRejected;
     try {
-      await _collection.doc(id).update({'status': status});
+      if (!releasesSlot) {
+        await _collection.doc(id).update({'status': status});
+        return;
+      }
+      await _firestore.runTransaction((tx) async {
+        final apptRef = _collection.doc(id);
+        final appt = await tx.get(apptRef);
+        if (!appt.exists) throw const NotFoundException('Appointment not found');
+        tx.update(apptRef, {'status': status});
+        final slotId = appt.data()?['slotId'] as String?;
+        if (slotId != null) tx.delete(_slots.doc(slotId));
+      });
+    } on AppException {
+      rethrow;
     } catch (e) {
       throw ServerException('Failed to update appointment: $e');
     }
@@ -103,36 +171,28 @@ class AppointmentRemoteDatasource {
     required String time,
   }) async {
     try {
-      final booked = await getBookedSlots(dentistId: dentistId, date: date);
-      return !booked.contains(time);
+      final slot = await _slots.doc(slotIdFor(dentistId, date, time)).get();
+      return !slot.exists;
     } catch (e) {
       debugPrint('isSlotAvailable error: $e');
       throw ServerException('Failed to check slot availability: $e');
     }
   }
 
+  /// Times already taken for a dentist on a given day. Reads the public
+  /// `booked_slots` collection, because patients may not read other
+  /// patients' appointments.
   Future<List<String>> getBookedSlots({
     required String dentistId,
     required DateTime date,
   }) async {
     try {
-      // Single-field equality query to avoid composite index requirement.
-      // Date and status filtering is done in Dart.
-      final snapshot = await _collection
+      final snapshot = await _slots
           .where('dentistId', isEqualTo: dentistId)
+          .where('date', isEqualTo: slotDateKey(date))
           .get();
-
-      final dayStart = DateTime(date.year, date.month, date.day);
-      final dayEnd = dayStart.add(const Duration(days: 1));
-
       return snapshot.docs
-          .map(AppointmentModel.fromFirestore)
-          .where((a) =>
-              !a.date.isBefore(dayStart) &&
-              a.date.isBefore(dayEnd) &&
-              a.status != AppConstants.statusCancelled &&
-              a.status != AppConstants.statusRejected)
-          .map((a) => a.time)
+          .map((d) => d.data()['time'] as String? ?? '')
           .where((t) => t.isNotEmpty)
           .toList();
     } catch (e) {

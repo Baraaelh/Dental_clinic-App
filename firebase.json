@@ -1,1 +1,29 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"dental-clinic-app-ae55c","appId":"1:980672004467:android:ae49a3cac5d36c42894506","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"dental-clinic-app-ae55c","configurations":{"android":"1:980672004467:android:ae49a3cac5d36c42894506","ios":"1:980672004467:ios:e04d6d4073d985e5894506","macos":"1:980672004467:ios:e04d6d4073d985e5894506","web":"1:980672004467:web:80fba3d00de1324f894506","windows":"1:980672004467:web:51e2cc2b6ea6444d894506"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "dental-clinic-app-ae55c",
+          "appId": "1:980672004467:android:ae49a3cac5d36c42894506",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "dental-clinic-app-ae55c",
+          "configurations": {
+            "android": "1:980672004467:android:ae49a3cac5d36c42894506",
+            "ios": "1:980672004467:ios:e04d6d4073d985e5894506",
+            "macos": "1:980672004467:ios:e04d6d4073d985e5894506",
+            "web": "1:980672004467:web:80fba3d00de1324f894506",
+            "windows": "1:980672004467:web:51e2cc2b6ea6444d894506"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

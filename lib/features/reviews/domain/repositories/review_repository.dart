@@ -7,5 +7,6 @@ abstract class ReviewRepository {
   Future<void> deleteReview(String id);
   Future<bool> hasPatientReviewed(String patientId, String dentistId);
   Future<bool> hasCompletedAppointment(String patientId, String dentistId);
+  Future<String?> getCompletedAppointmentId(String patientId, String dentistId);
   Future<Map<int, int>> getRatingBreakdown(String dentistId);
 }
