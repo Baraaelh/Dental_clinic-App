@@ -8,6 +8,7 @@ import '../../../../shared/widgets/empty_state_widget.dart';
 import '../../../../shared/widgets/error_widget.dart';
 import '../controllers/services_controller.dart';
 import '../widgets/service_card.dart';
+import '../../../../core/errors/error_messages.dart';
 
 class ClinicServicesScreen extends ConsumerWidget {
   const ClinicServicesScreen({super.key});
@@ -47,7 +48,7 @@ class ClinicServicesScreen extends ConsumerWidget {
           },
           loading: () => _ShimmerGrid(),
           error: (e, _) => AppErrorWidget(
-            message: e.toString(),
+            message: context.errorMessage(e),
             onRetry: () => ref.read(servicesProvider.notifier).refresh(),
           ),
         ),

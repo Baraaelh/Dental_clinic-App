@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/errors/app_exception.dart';
+import '../../../../core/errors/error_messages.dart';
 import '../../domain/models/review_model.dart';
 
 class ReviewRemoteDatasource {
@@ -54,7 +55,8 @@ class ReviewRemoteDatasource {
       await _firestore.runTransaction((tx) async {
         final existing = await tx.get(reviewRef);
         if (existing.exists) {
-          throw const ValidationException('You have already reviewed this dentist');
+          throw const ValidationException('Already reviewed',
+              code: AppErrorCodes.alreadyReviewed);
         }
         final dentist = await tx.get(dentistRef);
         if (!dentist.exists) throw const NotFoundException('Dentist not found');

@@ -11,6 +11,7 @@ import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/avatar_widget.dart';
 import '../../../authentication/presentation/controllers/auth_controller.dart';
 import '../controllers/profile_controller.dart';
+import '../../../../core/errors/error_messages.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -89,7 +90,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception:', '').trim()),
+            content: Text(context.errorMessage(e)),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -137,7 +138,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception:', '').trim()),
+            content: Text(context.errorMessage(e)),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -203,7 +204,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 label: l10n.fullName,
                 controller: _nameCtrl,
                 prefixIcon: const Icon(Icons.person_outline),
-                validator: (v) => Validators.validateName(v),
+                validator: (v) => Validators.validateName(
+                  v,
+                  requiredMsg: AppLocalizations.of(context).nameRequired,
+                  shortMsg: AppLocalizations.of(context).nameTooShort,
+                ),
               ),
               const SizedBox(height: 16),
               AppTextField(
@@ -211,7 +216,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 controller: _phoneCtrl,
                 keyboardType: TextInputType.phone,
                 prefixIcon: const Icon(Icons.phone_outlined),
-                validator: (v) => Validators.validatePhone(v),
+                validator: (v) => Validators.validatePhone(
+                  v,
+                  requiredMsg: AppLocalizations.of(context).phoneRequired,
+                  invalidMsg: AppLocalizations.of(context).phoneInvalid,
+                ),
               ),
               const SizedBox(height: 32),
               AppButton(

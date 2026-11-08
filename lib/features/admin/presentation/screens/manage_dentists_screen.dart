@@ -10,6 +10,7 @@ import '../../../../shared/widgets/empty_state_widget.dart';
 import '../../../../shared/widgets/error_widget.dart';
 import '../../../../shared/widgets/shimmer_loading.dart';
 import '../../../dentists/presentation/controllers/dentist_controller.dart';
+import '../../../../core/errors/error_messages.dart';
 
 class ManageDentistsScreen extends ConsumerStatefulWidget {
   const ManageDentistsScreen({super.key});
@@ -138,7 +139,7 @@ class _ManageDentistsScreenState extends ConsumerState<ManageDentistsScreen> {
               },
               loading: () => const ShimmerListView(itemCount: 6),
               error: (e, _) => AppErrorWidget(
-                message: e.toString(),
+                message: context.errorMessage(e),
                 onRetry: () =>
                     ref.read(dentistListProvider.notifier).refresh(),
               ),
@@ -183,7 +184,7 @@ class _ManageDentistsScreenState extends ConsumerState<ManageDentistsScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
+            content: Text(context.errorMessage(e)),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),

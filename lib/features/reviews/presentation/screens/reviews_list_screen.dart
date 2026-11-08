@@ -10,6 +10,7 @@ import '../../../authentication/presentation/controllers/auth_controller.dart';
 import '../controllers/review_controller.dart';
 import '../widgets/rating_breakdown_widget.dart';
 import '../widgets/review_card.dart';
+import '../../../../core/errors/error_messages.dart';
 
 class ReviewsListScreen extends ConsumerWidget {
   const ReviewsListScreen({super.key, required this.dentistId});
@@ -79,7 +80,7 @@ class ReviewsListScreen extends ConsumerWidget {
         },
         loading: () => const LoadingWidget(),
         error: (e, _) => AppErrorWidget(
-          message: e.toString(),
+          message: context.errorMessage(e),
           onRetry: () => ref.refresh(dentistReviewsProvider(dentistId)),
         ),
       ),

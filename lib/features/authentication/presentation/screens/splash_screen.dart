@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -81,9 +82,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Dental Clinic',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context).appName,
+                    style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -92,7 +93,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Your smile, our priority',
+                    AppLocalizations.of(context).appTagline,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white.withValues(alpha: 0.85),

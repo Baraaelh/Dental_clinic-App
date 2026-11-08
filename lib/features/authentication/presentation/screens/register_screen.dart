@@ -8,6 +8,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../controllers/auth_controller.dart';
+import '../../../../core/errors/error_messages.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -51,7 +52,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception:', '').trim()),
+            content: Text(context.errorMessage(e)),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -77,7 +78,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               Navigator.pop(ctx);
               context.go('/login');
             },
-            child: const Text('OK'),
+            child: Text(l10n.ok),
           ),
         ],
       ),

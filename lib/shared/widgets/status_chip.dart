@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/utils/extensions.dart';
+import '../../l10n/app_localizations.dart';
+import '../../core/utils/status_labels.dart';
 
 class StatusChip extends StatelessWidget {
   const StatusChip({super.key, required this.status});
@@ -25,7 +27,7 @@ class StatusChip extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Text(
-            status,
+            appointmentStatusLabel(AppLocalizations.of(context), status),
             style: TextStyle(
               color: color,
               fontSize: 12,

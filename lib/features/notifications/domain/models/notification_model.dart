@@ -7,6 +7,7 @@ class NotificationModel {
     required this.body,
     required this.receiverId,
     required this.isRead,
+    this.type,
     this.createdAt,
   });
 
@@ -15,6 +16,11 @@ class NotificationModel {
   final String body;
   final String receiverId;
   final bool isRead;
+
+  /// Appointment status this notification is about (e.g. "Approved"), so
+  /// the app can show it in the reader's language. Null for older or custom
+  /// notifications, which fall back to [title] and [body].
+  final String? type;
   final DateTime? createdAt;
 
   factory NotificationModel.fromFirestore(DocumentSnapshot doc) {
@@ -25,6 +31,7 @@ class NotificationModel {
       body: data['body'] as String? ?? '',
       receiverId: data['receiverId'] as String? ?? '',
       isRead: data['isRead'] as bool? ?? false,
+      type: data['type'] as String?,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
     );
   }
@@ -35,6 +42,7 @@ class NotificationModel {
       'body': body,
       'receiverId': receiverId,
       'isRead': isRead,
+      if (type != null) 'type': type,
       'createdAt': FieldValue.serverTimestamp(),
     };
   }
@@ -45,6 +53,7 @@ class NotificationModel {
     String? body,
     String? receiverId,
     bool? isRead,
+    String? type,
     DateTime? createdAt,
   }) {
     return NotificationModel(
@@ -53,6 +62,7 @@ class NotificationModel {
       body: body ?? this.body,
       receiverId: receiverId ?? this.receiverId,
       isRead: isRead ?? this.isRead,
+      type: type ?? this.type,
       createdAt: createdAt ?? this.createdAt,
     );
   }

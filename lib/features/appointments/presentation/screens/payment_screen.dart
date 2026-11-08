@@ -4,11 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/config/app_config.dart';
+import '../../../../core/errors/error_messages.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../controllers/appointment_controller.dart';
+
+enum _PaymentMethod { clinic, card }
 
 class PaymentScreen extends ConsumerStatefulWidget {
   const PaymentScreen({
@@ -37,6 +41,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   final _cardCtrl = TextEditingController();
   final _expiryCtrl = TextEditingController();
   final _cvvCtrl = TextEditingController();
+  _PaymentMethod _method = _PaymentMethod.clinic;
   bool _isProcessing = false;
   bool _isSuccess = false;
 
@@ -48,38 +53,62 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     super.dispose();
   }
 
-  String? _validateCard(String? v) {
-    if (v == null || v.isEmpty) return 'Card number is required';
-    if (v.replaceAll(' ', '').length != 16) return 'Enter a valid 16-digit card number';
+  String _amount(AppLocalizations l10n) =>
+      l10n.amountWithCurrency(AppConfig.depositAmount.toString());
+
+  /// Luhn checksum: catches typos in the card number.
+  static bool _passesLuhn(String digits) {
+    var sum = 0;
+    var doubleIt = false;
+    for (var i = digits.length - 1; i >= 0; i--) {
+      var d = int.parse(digits[i]);
+      if (doubleIt) {
+        d *= 2;
+        if (d > 9) d -= 9;
+      }
+      sum += d;
+      doubleIt = !doubleIt;
+    }
+    return sum % 10 == 0;
+  }
+
+  String? _validateCard(String? v, AppLocalizations l10n) {
+    final digits = (v ?? '').replaceAll(' ', '');
+    if (digits.isEmpty) return l10n.cardNumberRequired;
+    if (digits.length != 16 || !_passesLuhn(digits)) {
+      return l10n.cardNumberInvalid;
+    }
     return null;
   }
 
-  String? _validateExpiry(String? v) {
-    if (v == null || v.isEmpty) return 'Expiry date is required';
+  String? _validateExpiry(String? v, AppLocalizations l10n) {
+    if (v == null || v.isEmpty) return l10n.expiryRequired;
     if (!RegExp(r'^(0[1-9]|1[0-2])\/\d{2}$').hasMatch(v)) {
-      return 'Enter a valid expiry (MM/YY)';
+      return l10n.expiryInvalid;
     }
     final parts = v.split('/');
     final month = int.parse(parts[0]);
     final year = 2000 + int.parse(parts[1]);
     final now = DateTime.now();
     if (year < now.year || (year == now.year && month < now.month)) {
-      return 'Card is expired';
+      return l10n.cardExpired;
     }
     return null;
   }
 
-  String? _validateCvv(String? v) {
-    if (v == null || v.isEmpty) return 'CVV is required';
-    if (!RegExp(r'^\d{3}$').hasMatch(v)) return 'Enter a valid 3-digit CVV';
+  String? _validateCvv(String? v, AppLocalizations l10n) {
+    if (v == null || v.isEmpty) return l10n.cvvRequired;
+    if (!RegExp(r'^\d{3,4}$').hasMatch(v)) return l10n.cvvInvalid;
     return null;
   }
 
-  Future<void> _pay() async {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _submit() async {
+    final payByCard = _method == _PaymentMethod.card;
+    if (payByCard && !_formKey.currentState!.validate()) return;
 
     setState(() => _isProcessing = true);
-    await Future.delayed(const Duration(seconds: 2));
+    // Simulated gateway round-trip (see AppConfig.cardPaymentIsDemo).
+    if (payByCard) await Future.delayed(const Duration(milliseconds: 1500));
 
     try {
       await ref.read(bookAppointmentProvider.notifier).book(
@@ -89,7 +118,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
             dentistName: widget.dentistName,
             date: widget.date,
             time: widget.time,
-            isPaid: true,
+            isPaid: payByCard,
           );
       if (mounted) {
         ref.invalidate(upcomingAppointmentProvider(widget.patientId));
@@ -103,7 +132,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
         setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception:', '').trim()),
+            content: Text(context.errorMessage(e)),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -114,12 +143,19 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isSuccess) return _buildSuccess(context);
+    final l10n = AppLocalizations.of(context);
+    if (_isSuccess) return _buildSuccess(context, l10n);
+
+    final payByCard = _method == _PaymentMethod.card;
+    final sectionTitle = Theme.of(context)
+        .textTheme
+        .titleSmall
+        ?.copyWith(fontWeight: FontWeight.bold);
 
     return Scaffold(
       appBar: AppBar(
         leading: const BackButton(),
-        title: const Text('Payment'),
+        title: Text(l10n.payment),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -128,81 +164,86 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSummaryCard(context),
+              _buildSummaryCard(context, l10n),
               const SizedBox(height: 24),
-              Text(
-                'Payment Details',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall
-                    ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              AppTextField(
-                label: 'Card Number',
-                hint: '0000 0000 0000 0000',
-                controller: _cardCtrl,
-                keyboardType: TextInputType.number,
-                prefixIcon: const Icon(Icons.credit_card_outlined),
-                inputFormatters: [_CardNumberFormatter()],
-                validator: _validateCard,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: AppTextField(
-                      label: 'Expiry Date',
-                      hint: 'MM/YY',
-                      controller: _expiryCtrl,
-                      keyboardType: TextInputType.number,
-                      prefixIcon: const Icon(Icons.date_range_outlined),
-                      inputFormatters: [_ExpiryDateFormatter()],
-                      validator: _validateExpiry,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: AppTextField(
-                      label: 'CVV',
-                      hint: '000',
-                      controller: _cvvCtrl,
-                      keyboardType: TextInputType.number,
-                      obscureText: true,
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(3),
-                      ],
-                      validator: _validateCvv,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              AppButton(
-                label: 'Pay Deposit — 20 JD',
-                onPressed: _pay,
-                isLoading: _isProcessing,
-                icon: Icons.payment,
-              ),
+              Text(l10n.paymentMethod, style: sectionTitle),
               const SizedBox(height: 12),
-              Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+              _MethodOption(
+                icon: Icons.storefront_outlined,
+                title: l10n.payAtClinic,
+                subtitle: l10n.payAtClinicSubtitle,
+                selected: !payByCard,
+                onTap: () => setState(() => _method = _PaymentMethod.clinic),
+              ),
+              const SizedBox(height: 8),
+              _MethodOption(
+                icon: Icons.credit_card_outlined,
+                title: l10n.payByCard,
+                subtitle: AppConfig.cardPaymentIsDemo
+                    ? l10n.payByCardSubtitle
+                    : _amount(l10n),
+                selected: payByCard,
+                onTap: () => setState(() => _method = _PaymentMethod.card),
+              ),
+              if (payByCard) ...[
+                const SizedBox(height: 20),
+                if (AppConfig.cardPaymentIsDemo) ...[
+                  _DemoNotice(text: l10n.demoPaymentNotice),
+                  const SizedBox(height: 16),
+                ],
+                Text(l10n.cardDetails, style: sectionTitle),
+                const SizedBox(height: 16),
+                AppTextField(
+                  label: l10n.cardNumber,
+                  hint: '0000 0000 0000 0000',
+                  controller: _cardCtrl,
+                  keyboardType: TextInputType.number,
+                  prefixIcon: const Icon(Icons.credit_card_outlined),
+                  inputFormatters: [_CardNumberFormatter()],
+                  validator: (v) => _validateCard(v, l10n),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.lock, size: 12, color: AppColors.textHint),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Secured & encrypted payment',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: AppColors.textHint),
+                    Expanded(
+                      child: AppTextField(
+                        label: l10n.expiryDate,
+                        hint: 'MM/YY',
+                        controller: _expiryCtrl,
+                        keyboardType: TextInputType.number,
+                        prefixIcon: const Icon(Icons.date_range_outlined),
+                        inputFormatters: [_ExpiryDateFormatter()],
+                        validator: (v) => _validateExpiry(v, l10n),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: AppTextField(
+                        label: l10n.cvv,
+                        hint: '000',
+                        controller: _cvvCtrl,
+                        keyboardType: TextInputType.number,
+                        obscureText: true,
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(4),
+                        ],
+                        validator: (v) => _validateCvv(v, l10n),
+                      ),
                     ),
                   ],
                 ),
+              ],
+              const SizedBox(height: 32),
+              AppButton(
+                label: payByCard
+                    ? l10n.payDepositButton(_amount(l10n))
+                    : l10n.confirmBooking,
+                onPressed: _submit,
+                isLoading: _isProcessing,
+                icon: payByCard ? Icons.payment : Icons.check,
               ),
               const SizedBox(height: 16),
             ],
@@ -212,7 +253,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     );
   }
 
-  Widget _buildSummaryCard(BuildContext context) {
+  Widget _buildSummaryCard(BuildContext context, AppLocalizations l10n) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -229,7 +270,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
               const Icon(Icons.receipt_long, color: AppColors.primary, size: 18),
               const SizedBox(width: 8),
               Text(
-                'Appointment Summary',
+                l10n.appointmentSummary,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.bold,
@@ -240,19 +281,20 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
           const SizedBox(height: 12),
           _SummaryRow(
             icon: Icons.person_outline,
-            label: 'Doctor',
-            value: 'Dr. ${widget.dentistName}',
+            label: l10n.doctorLabel,
+            value: l10n.doctorName(widget.dentistName),
           ),
           const SizedBox(height: 6),
           _SummaryRow(
             icon: Icons.calendar_today_outlined,
-            label: 'Date',
-            value: DateFormat('EEEE, MMM dd, yyyy').format(widget.date),
+            label: l10n.dateLabel,
+            // Uses the app language (Intl.defaultLocale is set in main.dart).
+            value: DateFormat.yMMMMEEEEd().format(widget.date),
           ),
           const SizedBox(height: 6),
           _SummaryRow(
             icon: Icons.access_time_outlined,
-            label: 'Time',
+            label: l10n.timeLabel,
             value: widget.time,
           ),
           const Divider(height: 20),
@@ -260,14 +302,14 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Deposit Amount',
+                l10n.depositAmount,
                 style: Theme.of(context)
                     .textTheme
                     .bodyMedium
                     ?.copyWith(fontWeight: FontWeight.w600),
               ),
               Text(
-                '20 JD',
+                _amount(l10n),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.bold,
@@ -280,8 +322,11 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     );
   }
 
-  Widget _buildSuccess(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+  Widget _buildSuccess(BuildContext context, AppLocalizations l10n) {
+    final paidByCard = _method == _PaymentMethod.card;
+    final message = paidByCard
+        ? l10n.bookingPendingMessage
+        : '${l10n.bookingPendingMessage}\n${l10n.payAtClinicReminder(_amount(l10n))}';
     return Scaffold(
       body: Center(
         child: Padding(
@@ -304,7 +349,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Payment Successful!',
+                paidByCard ? l10n.paymentSuccessTitle : l10n.bookingSuccess,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppColors.success,
@@ -313,7 +358,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Your appointment has been booked.\nThe clinic will confirm shortly.',
+                message,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: AppColors.textSecondary,
@@ -328,6 +373,97 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _MethodOption extends StatelessWidget {
+  const _MethodOption({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final borderColor =
+        selected ? AppColors.primary : Theme.of(context).dividerColor;
+    return Semantics(
+      selected: selected,
+      button: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: selected
+                ? AppColors.primary.withValues(alpha: 0.06)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: borderColor, width: selected ? 1.5 : 1),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: selected ? AppColors.primary : AppColors.textSecondary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                          color: AppColors.textSecondary, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                selected ? Icons.radio_button_checked : Icons.radio_button_off,
+                color: selected ? AppColors.primary : AppColors.textHint,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DemoNotice extends StatelessWidget {
+  const _DemoNotice({required this.text});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.5)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.info_outline, color: AppColors.warning, size: 20),
+          const SizedBox(width: 8),
+          Expanded(child: Text(text, style: const TextStyle(fontSize: 13))),
+        ],
       ),
     );
   }

@@ -9,6 +9,8 @@ import '../../../../shared/widgets/error_widget.dart';
 import '../../../../shared/widgets/shimmer_loading.dart';
 import '../controllers/admin_controller.dart';
 import '../widgets/admin_appointment_tile.dart';
+import '../../../../core/errors/error_messages.dart';
+import '../../../../core/utils/status_labels.dart';
 
 class ManageAppointmentsScreen extends ConsumerStatefulWidget {
   const ManageAppointmentsScreen({super.key});
@@ -48,7 +50,8 @@ class _ManageAppointmentsScreenState
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final status = _statuses[index];
-                final label = status.isEmpty ? l10n.all : status;
+                final label =
+                    status.isEmpty ? l10n.all : appointmentStatusLabel(l10n, status);
                 final isSelected = _selectedStatus == status;
                 return FilterChip(
                   label: Text(label),
@@ -99,7 +102,7 @@ class _ManageAppointmentsScreenState
                 },
                 loading: () => const ShimmerListView(itemCount: 6, itemHeight: 140),
                 error: (e, _) => AppErrorWidget(
-                  message: e.toString(),
+                  message: context.errorMessage(e),
                   onRetry: () =>
                       ref.read(adminAppointmentsProvider.notifier).refresh(),
                 ),
@@ -120,7 +123,7 @@ class _ManageAppointmentsScreenState
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Appointment $status'),
+            content: Text(appointmentStatusLabel(AppLocalizations.of(context), status)),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
           ),
@@ -130,7 +133,7 @@ class _ManageAppointmentsScreenState
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
+            content: Text(context.errorMessage(e)),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),

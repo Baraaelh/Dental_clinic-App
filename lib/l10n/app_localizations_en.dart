@@ -804,4 +804,210 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationReminder => 'Appointment reminder for tomorrow';
+
+  @override
+  String get appTagline => 'Your smile, our priority';
+
+  @override
+  String get payment => 'Payment';
+
+  @override
+  String get appointmentSummary => 'Appointment Summary';
+
+  @override
+  String get doctorLabel => 'Doctor';
+
+  @override
+  String get dateLabel => 'Date';
+
+  @override
+  String get timeLabel => 'Time';
+
+  @override
+  String doctorName(String name) {
+    return 'Dr. $name';
+  }
+
+  @override
+  String get depositAmount => 'Deposit Amount';
+
+  @override
+  String amountWithCurrency(String amount) {
+    return '$amount JD';
+  }
+
+  @override
+  String get paymentMethod => 'Payment Method';
+
+  @override
+  String get payAtClinic => 'Pay at the clinic';
+
+  @override
+  String get payAtClinicSubtitle => 'Pay the deposit when you arrive';
+
+  @override
+  String get payByCard => 'Pay deposit by card';
+
+  @override
+  String get payByCardSubtitle => 'Demo mode: no real charge';
+
+  @override
+  String get demoPaymentNotice =>
+      'Online payment is in demo mode. No card is charged, so please don\'t enter real card details.';
+
+  @override
+  String get cardDetails => 'Card Details';
+
+  @override
+  String get cardNumber => 'Card Number';
+
+  @override
+  String get expiryDate => 'Expiry Date';
+
+  @override
+  String get cvv => 'CVV';
+
+  @override
+  String get cardNumberRequired => 'Card number is required';
+
+  @override
+  String get cardNumberInvalid => 'Enter a valid card number';
+
+  @override
+  String get expiryRequired => 'Expiry date is required';
+
+  @override
+  String get expiryInvalid => 'Enter a valid expiry (MM/YY)';
+
+  @override
+  String get cardExpired => 'Card is expired';
+
+  @override
+  String get cvvRequired => 'CVV is required';
+
+  @override
+  String get cvvInvalid => 'Enter a valid 3 or 4 digit CVV';
+
+  @override
+  String payDepositButton(String amount) {
+    return 'Pay Deposit ($amount)';
+  }
+
+  @override
+  String get paymentSuccessTitle => 'Payment Successful!';
+
+  @override
+  String get bookingPendingMessage =>
+      'Your appointment has been booked.\nThe clinic will confirm it shortly.';
+
+  @override
+  String payAtClinicReminder(String amount) {
+    return 'Please pay the deposit ($amount) when you arrive.';
+  }
+
+  @override
+  String get quickActions => 'Quick Actions';
+
+  @override
+  String get dashboard => 'Dashboard';
+
+  @override
+  String get appointments => 'Appointments';
+
+  @override
+  String get users => 'Users';
+
+  @override
+  String get noAppointmentData => 'No appointment data';
+
+  @override
+  String get pleaseSelectRating => 'Please select a rating';
+
+  @override
+  String get selectAtLeastOneWorkingDay =>
+      'Please select at least one working day';
+
+  @override
+  String get commentTooLong => 'Comment must be at most 1000 characters';
+
+  @override
+  String get ratingPoor => 'Poor';
+
+  @override
+  String get ratingFair => 'Fair';
+
+  @override
+  String get ratingGood => 'Good';
+
+  @override
+  String get ratingVeryGood => 'Very Good';
+
+  @override
+  String get ratingExcellent => 'Excellent';
+
+  @override
+  String get tapToRate => 'Tap to rate';
+
+  @override
+  String get notificationTitleApproved => 'Appointment Approved';
+
+  @override
+  String get notificationTitleRejected => 'Appointment Rejected';
+
+  @override
+  String get notificationTitleCancelled => 'Appointment Cancelled';
+
+  @override
+  String get notificationTitleCompleted => 'Appointment Completed';
+
+  @override
+  String get notificationCompleted =>
+      'Your appointment has been completed. Thank you for visiting us!';
+
+  @override
+  String get errorUserNotFound => 'No account found with this email';
+
+  @override
+  String get errorWrongPassword => 'Incorrect password';
+
+  @override
+  String get errorInvalidCredential => 'Invalid email or password';
+
+  @override
+  String get errorEmailInUse => 'An account already exists with this email';
+
+  @override
+  String get errorInvalidEmail => 'Invalid email address';
+
+  @override
+  String get errorAccountDisabled =>
+      'Your account has been disabled. Please contact the clinic.';
+
+  @override
+  String get errorTooManyRequests =>
+      'Too many attempts. Please try again later';
+
+  @override
+  String get errorWeakPassword => 'Password is too weak';
+
+  @override
+  String get errorRequiresRecentLogin =>
+      'Please sign in again to complete this action';
+
+  @override
+  String get errorProfileSaveFailed =>
+      'Could not save your profile. Please check your connection and try again.';
+
+  @override
+  String get errorUserDataNotFound =>
+      'Account data not found. Please contact the clinic.';
+
+  @override
+  String get errorPermissionDenied => 'You don\'t have permission to do this';
+
+  @override
+  String get errorNotFound => 'The requested item was not found';
+
+  @override
+  String get paid => 'Paid';
 }

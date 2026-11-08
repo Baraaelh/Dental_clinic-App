@@ -8,6 +8,8 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/error_widget.dart';
 import '../../../../shared/widgets/loading_widget.dart';
 import '../controllers/admin_controller.dart';
+import '../../../../core/errors/error_messages.dart';
+import '../../../../core/utils/status_labels.dart';
 
 final _topDentistsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) {
   return ref.read(adminRepositoryProvider).getTopDentists(3);
@@ -54,7 +56,7 @@ class StatisticsScreen extends ConsumerWidget {
                 ],
               ),
               loading: () => const SizedBox(height: 80, child: LoadingWidget()),
-              error: (e, _) => AppErrorWidget(message: e.toString()),
+              error: (e, _) => AppErrorWidget(message: context.errorMessage(e)),
             ),
             const SizedBox(height: 24),
 
@@ -71,7 +73,7 @@ class StatisticsScreen extends ConsumerWidget {
               data: (monthly) => _AppointmentsLineChart(monthly: monthly),
               loading: () =>
                   const SizedBox(height: 220, child: LoadingWidget()),
-              error: (e, _) => AppErrorWidget(message: e.toString()),
+              error: (e, _) => AppErrorWidget(message: context.errorMessage(e)),
             ),
             const SizedBox(height: 24),
 
@@ -97,7 +99,7 @@ class StatisticsScreen extends ConsumerWidget {
               },
               loading: () =>
                   const SizedBox(height: 220, child: LoadingWidget()),
-              error: (e, _) => AppErrorWidget(message: e.toString()),
+              error: (e, _) => AppErrorWidget(message: context.errorMessage(e)),
             ),
             const SizedBox(height: 24),
 
@@ -114,7 +116,7 @@ class StatisticsScreen extends ConsumerWidget {
               data: (dentists) => _TopDentistsList(dentists: dentists),
               loading: () =>
                   const SizedBox(height: 120, child: LoadingWidget()),
-              error: (e, _) => AppErrorWidget(message: e.toString()),
+              error: (e, _) => AppErrorWidget(message: context.errorMessage(e)),
             ),
             const SizedBox(height: 16),
           ],
@@ -182,9 +184,9 @@ class _AppointmentsLineChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (monthly.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 220,
-        child: Center(child: Text('No data available')),
+        child: Center(child: Text(AppLocalizations.of(context).noData)),
       );
     }
 
@@ -339,9 +341,9 @@ class _StatusPieChartState extends State<_StatusPieChart> {
     }
 
     if (sections.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 220,
-        child: Center(child: Text('No appointment data')),
+        child: Center(child: Text(AppLocalizations.of(context).noAppointmentData)),
       );
     }
 
@@ -394,7 +396,7 @@ class _StatusPieChartState extends State<_StatusPieChart> {
                   _LegendItem(
                     color: _statusColors[key.toLowerCase()] ??
                         AppColors.textSecondary,
-                    label: key,
+                    label: appointmentStatusLabel(AppLocalizations.of(context), key),
                     count: widget.stats[key.toLowerCase()] ?? 0,
                   ),
                   const SizedBox(height: 6),
@@ -447,7 +449,7 @@ class _TopDentistsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (dentists.isEmpty) {
-      return const Center(child: Text('No dentists found'));
+      return Center(child: Text(AppLocalizations.of(context).noDentists));
     }
     return Column(
       children: List.generate(dentists.length, (index) {

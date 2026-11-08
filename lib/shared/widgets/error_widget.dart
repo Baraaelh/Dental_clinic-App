@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import 'app_button.dart';
+import '../../l10n/app_localizations.dart';
 
 class AppErrorWidget extends StatelessWidget {
   const AppErrorWidget({
@@ -34,7 +35,7 @@ class AppErrorWidget extends StatelessWidget {
             if (onRetry != null) ...[
               const SizedBox(height: 24),
               AppButton(
-                label: 'Retry',
+                label: AppLocalizations.of(context).retry,
                 onPressed: onRetry,
                 width: 150,
                 height: 44,

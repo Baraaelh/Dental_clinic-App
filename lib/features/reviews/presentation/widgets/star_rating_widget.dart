@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/widgets/rating_bar.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class StarRatingWidget extends StatefulWidget {
   const StarRatingWidget({
@@ -49,19 +50,20 @@ class _StarRatingWidgetState extends State<StarRatingWidget> {
   }
 
   String _getRatingLabel() {
+    final l10n = AppLocalizations.of(context);
     switch (_rating.toInt()) {
       case 1:
-        return 'Poor';
+        return l10n.ratingPoor;
       case 2:
-        return 'Fair';
+        return l10n.ratingFair;
       case 3:
-        return 'Good';
+        return l10n.ratingGood;
       case 4:
-        return 'Very Good';
+        return l10n.ratingVeryGood;
       case 5:
-        return 'Excellent';
+        return l10n.ratingExcellent;
       default:
-        return 'Tap to rate';
+        return l10n.tapToRate;
     }
   }
 }
