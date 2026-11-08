@@ -8,6 +8,7 @@ import '../../../../shared/widgets/shimmer_loading.dart';
 import '../../../authentication/presentation/controllers/auth_controller.dart';
 import '../controllers/notification_controller.dart';
 import '../widgets/notification_tile.dart';
+import '../../../../core/errors/error_messages.dart';
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
@@ -78,7 +79,7 @@ class NotificationsScreen extends ConsumerWidget {
           },
           loading: () => const ShimmerListView(itemCount: 8, itemHeight: 80),
           error: (e, _) => AppErrorWidget(
-            message: e.toString(),
+            message: context.errorMessage(e),
             onRetry: () =>
                 ref.read(notificationsProvider(user.uid).notifier).refresh(),
           ),

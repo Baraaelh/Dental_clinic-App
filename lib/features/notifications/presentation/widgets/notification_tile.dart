@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/models/notification_model.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../notification_text.dart';
 
 class NotificationTile extends StatelessWidget {
   const NotificationTile({
@@ -16,6 +18,8 @@ class NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final text = localizedNotificationText(
+        AppLocalizations.of(context), notification);
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -50,7 +54,7 @@ class NotificationTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          notification.title,
+                          text.title,
                           style: TextStyle(
                             fontWeight: notification.isRead
                                 ? FontWeight.normal
@@ -72,7 +76,7 @@ class NotificationTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    notification.body,
+                    text.body,
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,

@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class ConfirmDialog extends StatelessWidget {
   const ConfirmDialog({
     super.key,
     required this.title,
     required this.message,
-    this.confirmLabel = 'Confirm',
-    this.cancelLabel = 'Cancel',
+    this.confirmLabel,
+    this.cancelLabel,
     this.isDestructive = false,
     this.icon,
   });
 
   final String title;
   final String message;
-  final String confirmLabel;
-  final String cancelLabel;
+  /// Defaults to the translated "Confirm" / "Cancel".
+  final String? confirmLabel;
+  final String? cancelLabel;
   final bool isDestructive;
   final IconData? icon;
 
@@ -23,8 +25,8 @@ class ConfirmDialog extends StatelessWidget {
     BuildContext context, {
     required String title,
     required String message,
-    String confirmLabel = 'Confirm',
-    String cancelLabel = 'Cancel',
+    String? confirmLabel,
+    String? cancelLabel,
     bool isDestructive = false,
     IconData? icon,
   }) async {
@@ -72,7 +74,7 @@ class ConfirmDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: Text(cancelLabel),
+          child: Text(cancelLabel ?? AppLocalizations.of(context).cancel),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
@@ -83,7 +85,7 @@ class ConfirmDialog extends StatelessWidget {
             ),
           ),
           onPressed: () => Navigator.pop(context, true),
-          child: Text(confirmLabel),
+          child: Text(confirmLabel ?? AppLocalizations.of(context).confirm),
         ),
       ],
     );

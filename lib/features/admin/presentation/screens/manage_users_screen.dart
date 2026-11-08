@@ -9,6 +9,7 @@ import '../../../../shared/widgets/error_widget.dart';
 import '../../../../shared/widgets/shimmer_loading.dart';
 import '../../../authentication/domain/models/user_model.dart';
 import '../controllers/admin_controller.dart';
+import '../../../../core/errors/error_messages.dart';
 
 class ManageUsersScreen extends ConsumerWidget {
   const ManageUsersScreen({super.key});
@@ -45,7 +46,7 @@ class ManageUsersScreen extends ConsumerWidget {
           },
           loading: () => const ShimmerListView(itemCount: 8),
           error: (e, _) => AppErrorWidget(
-            message: e.toString(),
+            message: context.errorMessage(e),
             onRetry: () => ref.read(allPatientsProvider.notifier).refresh(),
           ),
         ),
@@ -119,7 +120,7 @@ class _PatientTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                patient.isActive ? 'Active' : 'Blocked',
+                patient.isActive ? AppLocalizations.of(context).active : AppLocalizations.of(context).inactive,
                 style: TextStyle(
                   color:
                       patient.isActive ? AppColors.success : AppColors.error,

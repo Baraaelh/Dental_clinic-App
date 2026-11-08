@@ -14,6 +14,7 @@ import '../../../reviews/presentation/controllers/review_controller.dart';
 import '../../../reviews/presentation/widgets/review_card.dart';
 import '../controllers/dentist_controller.dart';
 import '../widgets/working_hours_widget.dart';
+import '../../../../core/errors/error_messages.dart';
 
 class DentistDetailsScreen extends ConsumerWidget {
   const DentistDetailsScreen({super.key, required this.dentistId});
@@ -197,7 +198,7 @@ class DentistDetailsScreen extends ConsumerWidget {
         error: (e, _) => Scaffold(
           appBar: AppBar(),
           body: AppErrorWidget(
-            message: e.toString(),
+            message: context.errorMessage(e),
             onRetry: () => ref.refresh(dentistDetailProvider(dentistId)),
           ),
         ),

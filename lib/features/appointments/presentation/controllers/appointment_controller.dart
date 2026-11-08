@@ -101,12 +101,8 @@ class BookAppointmentController extends AsyncNotifier<void> {
       ref.invalidate(bookedSlotsProvider);
       ref.invalidate(patientAppointmentsProvider(patientId));
       state = const AsyncData(null);
-    } on AppException catch (e, st) {
-      if (e is SlotUnavailableException) ref.invalidate(bookedSlotsProvider);
-      state = AsyncError(e, st);
-      // Screens show `toString()` minus the "Exception:" prefix.
-      throw Exception(e.message);
     } catch (e, st) {
+      if (e is SlotUnavailableException) ref.invalidate(bookedSlotsProvider);
       state = AsyncError(e, st);
       rethrow;
     }

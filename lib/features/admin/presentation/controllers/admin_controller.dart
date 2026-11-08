@@ -95,12 +95,15 @@ class AdminAppointmentsController
         receiverId: patientId,
         title: title,
         body: _getNotificationBody(status),
+        type: status,
       );
     }
 
     await refresh();
   }
 
+  // English fallback text, stored for older app versions and the web
+  // dashboard. The app itself shows the translated text based on `type`.
   String? _getNotificationTitle(String status) {
     switch (status) {
       case AppConstants.statusApproved:

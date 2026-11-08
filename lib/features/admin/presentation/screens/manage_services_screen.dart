@@ -18,6 +18,7 @@ import '../../../../shared/widgets/error_widget.dart';
 import '../../../../shared/widgets/shimmer_loading.dart';
 import '../../../services/domain/models/service_model.dart';
 import '../../../services/presentation/controllers/services_controller.dart';
+import '../../../../core/errors/error_messages.dart';
 
 class ManageServicesScreen extends ConsumerWidget {
   const ManageServicesScreen({super.key});
@@ -55,7 +56,7 @@ class ManageServicesScreen extends ConsumerWidget {
           },
           loading: () => const ShimmerListView(itemCount: 6),
           error: (e, _) => AppErrorWidget(
-            message: e.toString(),
+            message: context.errorMessage(e),
             onRetry: () => ref.read(servicesProvider.notifier).refresh(),
           ),
         ),
@@ -104,7 +105,7 @@ class ManageServicesScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
+            content: Text(context.errorMessage(e)),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -297,7 +298,7 @@ class _AddEditServiceSheetState extends State<_AddEditServiceSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception:', '').trim()),
+            content: Text(context.errorMessage(e)),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),

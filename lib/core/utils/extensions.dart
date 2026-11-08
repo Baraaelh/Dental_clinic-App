@@ -26,7 +26,7 @@ extension DateTimeExtensions on DateTime {
 
   String toDisplayDateTime() => DateFormat('MMM dd, yyyy hh:mm a').format(this);
 
-  String toFirestoreDate() => DateFormat('yyyy-MM-dd').format(this);
+  String toFirestoreDate() => DateFormat('yyyy-MM-dd', 'en').format(this);
 
   bool isSameDay(DateTime other) {
     return year == other.year && month == other.month && day == other.day;
@@ -36,7 +36,8 @@ extension DateTimeExtensions on DateTime {
 
   bool get isTomorrow => isSameDay(DateTime.now().add(const Duration(days: 1)));
 
-  String get dayName => DateFormat('EEEE').format(this);
+  /// English weekday name, matching the values stored in `workingDays`.
+  String get dayName => DateFormat('EEEE', 'en').format(this);
 }
 
 extension AppointmentStatusExtensions on String {

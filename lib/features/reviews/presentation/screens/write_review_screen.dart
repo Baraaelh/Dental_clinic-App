@@ -10,6 +10,7 @@ import '../../../authentication/presentation/controllers/auth_controller.dart';
 import '../../../dentists/presentation/controllers/dentist_controller.dart';
 import '../controllers/review_controller.dart';
 import '../widgets/star_rating_widget.dart';
+import '../../../../core/errors/error_messages.dart';
 
 class WriteReviewScreen extends ConsumerStatefulWidget {
   const WriteReviewScreen({super.key, required this.dentistId});
@@ -34,8 +35,8 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
   Future<void> _submit() async {
     if (_rating == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a rating'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).pleaseSelectRating),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
         ),
@@ -71,7 +72,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception:', '').trim()),
+            content: Text(context.errorMessage(e)),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -165,6 +166,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
                   v,
                   requiredMsg: l10n.commentRequired,
                   shortMsg: l10n.commentTooShort,
+                  longMsg: l10n.commentTooLong,
                 ),
               ),
               const SizedBox(height: 32),

@@ -10,6 +10,7 @@ import '../../../authentication/presentation/controllers/auth_controller.dart';
 import '../../domain/models/appointment_model.dart';
 import '../controllers/appointment_controller.dart';
 import '../widgets/appointment_card.dart';
+import '../../../../core/errors/error_messages.dart';
 
 class MyAppointmentsScreen extends ConsumerWidget {
   const MyAppointmentsScreen({super.key});
@@ -80,12 +81,12 @@ class MyAppointmentsScreen extends ConsumerWidget {
               error: (e, _) => TabBarView(
                 children: [
                   AppErrorWidget(
-                    message: e.toString(),
+                    message: context.errorMessage(e),
                     onRetry: () => ref
                         .read(patientAppointmentsProvider(user.uid).notifier)
                         .refresh(),
                   ),
-                  AppErrorWidget(message: e.toString()),
+                  AppErrorWidget(message: context.errorMessage(e)),
                 ],
               ),
             );

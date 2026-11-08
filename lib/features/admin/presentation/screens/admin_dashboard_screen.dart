@@ -10,6 +10,7 @@ import '../../../authentication/presentation/controllers/auth_controller.dart';
 import '../controllers/admin_controller.dart';
 import '../widgets/admin_appointment_tile.dart';
 import '../widgets/stat_card.dart';
+import '../../../../core/errors/error_messages.dart';
 
 class AdminDashboardScreen extends ConsumerWidget {
   const AdminDashboardScreen({super.key});
@@ -27,14 +28,14 @@ class AdminDashboardScreen extends ConsumerWidget {
           PopupMenuButton<String>(
             onSelected: (route) => context.push(route),
             itemBuilder: (ctx) => [
-              const PopupMenuItem(value: '/admin/dentists', child: Text('Dentists')),
-              const PopupMenuItem(
-                  value: '/admin/appointments', child: Text('Appointments')),
-              const PopupMenuItem(value: '/admin/services', child: Text('Services')),
-              const PopupMenuItem(value: '/admin/users', child: Text('Users')),
-              const PopupMenuItem(value: '/admin/reviews', child: Text('Reviews')),
-              const PopupMenuItem(
-                  value: '/admin/statistics', child: Text('Statistics')),
+              PopupMenuItem(value: '/admin/dentists', child: Text(l10n.dentists)),
+              PopupMenuItem(
+                  value: '/admin/appointments', child: Text(l10n.appointments)),
+              PopupMenuItem(value: '/admin/services', child: Text(l10n.services)),
+              PopupMenuItem(value: '/admin/users', child: Text(l10n.users)),
+              PopupMenuItem(value: '/admin/reviews', child: Text(l10n.reviews)),
+              PopupMenuItem(
+                  value: '/admin/statistics', child: Text(l10n.statistics)),
             ],
           ),
         ],
@@ -91,7 +92,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                 height: 200,
                 child: LoadingWidget(),
               ),
-              error: (e, _) => AppErrorWidget(message: e.toString()),
+              error: (e, _) => AppErrorWidget(message: context.errorMessage(e)),
             ),
             const SizedBox(height: 24),
             Row(
@@ -128,11 +129,11 @@ class AdminDashboardScreen extends ConsumerWidget {
                     .toList(),
               ),
               loading: () => const LoadingWidget(),
-              error: (e, _) => AppErrorWidget(message: e.toString()),
+              error: (e, _) => AppErrorWidget(message: context.errorMessage(e)),
             ),
             const SizedBox(height: 16),
             Text(
-              'Quick Actions',
+              l10n.quickActions,
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
@@ -144,17 +145,17 @@ class AdminDashboardScreen extends ConsumerWidget {
               runSpacing: 8,
               children: [
                 _QuickActionChip(
-                  label: 'Add Dentist',
+                  label: l10n.addDentist,
                   icon: Icons.person_add,
                   onTap: () => context.push('/admin/dentists/add'),
                 ),
                 _QuickActionChip(
-                  label: 'Statistics',
+                  label: l10n.statistics,
                   icon: Icons.bar_chart,
                   onTap: () => context.push('/admin/statistics'),
                 ),
                 _QuickActionChip(
-                  label: 'Manage Services',
+                  label: l10n.manageServices,
                   icon: Icons.medical_services,
                   onTap: () => context.push('/admin/services'),
                 ),
@@ -232,7 +233,7 @@ class _AdminDrawer extends ConsumerWidget {
           ),
           ListTile(
             leading: const Icon(Icons.dashboard),
-            title: const Text('Dashboard'),
+            title: Text(AppLocalizations.of(context).dashboard),
             onTap: () {
               Navigator.pop(context);
               context.go('/admin/dashboard');

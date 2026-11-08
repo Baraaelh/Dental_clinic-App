@@ -199,6 +199,7 @@ class AdminRemoteDatasource {
     required String receiverId,
     required String title,
     required String body,
+    String? type,
   }) async {
     try {
       await _firestore
@@ -208,6 +209,7 @@ class AdminRemoteDatasource {
             'title': title,
             'body': body,
             'isRead': false,
+            if (type != null) 'type': type,
             'createdAt': FieldValue.serverTimestamp(),
           });
     } catch (e) {

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/status_chip.dart';
 import '../../../appointments/domain/models/appointment_model.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class AdminAppointmentTile extends StatelessWidget {
   const AdminAppointmentTile({
@@ -42,7 +43,7 @@ class AdminAppointmentTile extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Dr. ${appointment.dentistName}',
+                        AppLocalizations.of(context).doctorName(appointment.dentistName),
                         style: const TextStyle(
                           color: AppColors.primary,
                           fontSize: 12,
@@ -54,16 +55,16 @@ class AdminAppointmentTile extends StatelessWidget {
                 ),
                 if (appointment.isPaid)
                   Container(
-                    margin: const EdgeInsets.only(right: 6),
+                    margin: const EdgeInsetsDirectional.only(end: 6),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: const Color(0xFF10B981),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Text(
-                      'Paid',
-                      style: TextStyle(
+                    child: Text(
+                      AppLocalizations.of(context).paid,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -112,7 +113,8 @@ class AdminAppointmentTile extends StatelessWidget {
                           ),
                         ),
                         onPressed: onApprove,
-                        child: const Text('Approve', style: TextStyle(fontSize: 12)),
+                        child: Text(AppLocalizations.of(context).approveAppointment,
+                            style: const TextStyle(fontSize: 12)),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -128,7 +130,8 @@ class AdminAppointmentTile extends StatelessWidget {
                           ),
                         ),
                         onPressed: onReject,
-                        child: const Text('Reject', style: TextStyle(fontSize: 12)),
+                        child: Text(AppLocalizations.of(context).rejectAppointment,
+                            style: const TextStyle(fontSize: 12)),
                       ),
                     ),
                   ],
@@ -145,7 +148,8 @@ class AdminAppointmentTile extends StatelessWidget {
                           ),
                         ),
                         onPressed: onComplete,
-                        child: const Text('Complete', style: TextStyle(fontSize: 12)),
+                        child: Text(AppLocalizations.of(context).markCompleted,
+                            style: const TextStyle(fontSize: 12)),
                       ),
                     ),
                   ],

@@ -9,6 +9,7 @@ import '../../../../shared/widgets/shimmer_loading.dart';
 import '../controllers/dentist_controller.dart';
 import '../widgets/dentist_card.dart';
 import '../widgets/specialization_filter.dart';
+import '../../../../core/errors/error_messages.dart';
 
 class DentistsListScreen extends ConsumerStatefulWidget {
   const DentistsListScreen({super.key});
@@ -97,7 +98,7 @@ class _DentistsListScreenState extends ConsumerState<DentistsListScreen> {
                   itemBuilder: (_, __) => const ShimmerDentistCard(),
                 ),
                 error: (e, _) => AppErrorWidget(
-                  message: e.toString(),
+                  message: context.errorMessage(e),
                   onRetry: () =>
                       ref.read(dentistListProvider.notifier).refresh(),
                 ),
