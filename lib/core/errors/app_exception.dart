@@ -34,3 +34,10 @@ class PermissionException extends AppException {
 class ValidationException extends AppException {
   const ValidationException(super.message, {super.code});
 }
+
+class SlotUnavailableException extends AppException {
+  const SlotUnavailableException(
+      [super.message =
+          'This time slot is already booked. Please select another.'])
+      : super(code: 'slot-unavailable');
+}

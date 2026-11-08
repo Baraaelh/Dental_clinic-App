@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/errors/app_exception.dart';
 import '../../data/datasources/appointment_remote_datasource.dart';
 import '../../data/repositories/appointment_repository_impl.dart';
 import '../../domain/models/appointment_model.dart';
@@ -44,6 +45,7 @@ class AppointmentDetailController
     await ref
         .read(appointmentRepositoryProvider)
         .updateAppointmentStatus(arg, AppConstants.statusCancelled);
+    ref.invalidate(bookedSlotsProvider);
     state = await AsyncValue.guard(() =>
         ref.read(appointmentRepositoryProvider).getAppointmentById(arg));
   }
@@ -81,14 +83,6 @@ class BookAppointmentController extends AsyncNotifier<void> {
   }) async {
     state = const AsyncLoading();
     try {
-      final isAvailable = await ref
-          .read(appointmentRepositoryProvider)
-          .isSlotAvailable(dentistId: dentistId, date: date, time: time);
-
-      if (!isAvailable) {
-        throw Exception('This time slot is already booked. Please select another.');
-      }
-
       final appointment = AppointmentModel(
         id: '',
         patientId: patientId,
@@ -102,8 +96,16 @@ class BookAppointmentController extends AsyncNotifier<void> {
         isPaid: isPaid,
       );
 
+      // Reserves the slot atomically; fails if it was taken meanwhile.
       await ref.read(appointmentRepositoryProvider).createAppointment(appointment);
+      ref.invalidate(bookedSlotsProvider);
+      ref.invalidate(patientAppointmentsProvider(patientId));
       state = const AsyncData(null);
+    } on AppException catch (e, st) {
+      if (e is SlotUnavailableException) ref.invalidate(bookedSlotsProvider);
+      state = AsyncError(e, st);
+      // Screens show `toString()` minus the "Exception:" prefix.
+      throw Exception(e.message);
     } catch (e, st) {
       state = AsyncError(e, st);
       rethrow;

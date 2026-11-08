@@ -110,7 +110,7 @@ class DentistRemoteDatasource {
 
   Future<String> addDentist(DentistModel dentist) async {
     try {
-      final ref = await _collection.add(dentist.toMap());
+      final ref = await _collection.add({...dentist.toMap(), 'ratingSum': 0.0});
       return ref.id;
     } catch (e) {
       throw ServerException('Failed to add dentist: $e');
@@ -119,7 +119,11 @@ class DentistRemoteDatasource {
 
   Future<void> updateDentist(DentistModel dentist) async {
     try {
-      await _collection.doc(dentist.id).update(dentist.toMap());
+      // Rating fields are maintained by reviews; don't overwrite them with
+      // possibly stale values from the edit form.
+      await _collection.doc(dentist.id).update(dentist.toMap()
+        ..remove('averageRating')
+        ..remove('totalReviews'));
     } catch (e) {
       throw ServerException('Failed to update dentist: $e');
     }

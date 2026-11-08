@@ -27,6 +27,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
   DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
   String? _selectedTime;
+  bool _initialDayChosen = false;
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +41,19 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
       ),
       body: dentistAsync.when(
         data: (dentist) {
+          // Start on the first day the dentist actually works.
+          if (!_initialDayChosen) {
+            _initialDayChosen = true;
+            if (dentist.workingDays.isNotEmpty) {
+              var day = DateTime.now();
+              for (var i = 0; i < 7; i++) {
+                if (dentist.isWorkingOn(_getDayName(day.weekday))) break;
+                day = day.add(const Duration(days: 1));
+              }
+              _selectedDay = day;
+              _focusedDay = day;
+            }
+          }
           final bookedSlotsAsync = ref.watch(
             bookedSlotsProvider((
               dentistId: widget.dentistId,
@@ -135,7 +149,8 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                         final slot = allSlots[index];
                         return TimeSlotWidget(
                           time: slot,
-                          isBooked: bookedSlots.contains(slot),
+                          isBooked: bookedSlots.contains(slot) ||
+                              _isPast(_selectedDay, slot),
                           isSelected: _selectedTime == slot,
                           onTap: () =>
                               setState(() => _selectedTime = slot),
@@ -183,6 +198,16 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
         ),
       ),
     );
+  }
+
+  /// Today's slots that have already started can't be booked.
+  bool _isPast(DateTime day, String slot) {
+    final now = DateTime.now();
+    if (!isSameDay(day, now)) return false;
+    final parts = slot.split(':');
+    final slotTime = DateTime(now.year, now.month, now.day,
+        int.parse(parts[0]), int.parse(parts[1]));
+    return !slotTime.isAfter(now);
   }
 
   String _getDayName(int weekday) {

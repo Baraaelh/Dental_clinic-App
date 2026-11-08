@@ -146,7 +146,7 @@ window.saveDentist = async () => {
       await uDc(dc(window._db, 'dentists', id), data);
       showToast('Dentist updated.', 'success');
     } else {
-      data.averageRating = 0; data.totalReviews = 0;
+      data.averageRating = 0; data.totalReviews = 0; data.ratingSum = 0;
       await aDc(col(window._db, 'dentists'), data);
       showToast('Dentist added.', 'success');
     }
@@ -207,9 +207,18 @@ function statusActions(id, status) {
 }
 
 window.updateApptStatus = async (id, status) => {
-  const { doc: dc, updateDoc: uDc } = window._firebase;
+  const { doc: dc, getDoc: gD, writeBatch: wB } = window._firebase;
   try {
-    await uDc(dc(window._db, 'appointments', id), { status });
+    const ref = dc(window._db, 'appointments', id);
+    const batch = wB(window._db);
+    batch.update(ref, { status });
+    // Rejecting/cancelling frees the reserved time slot for other patients.
+    if (status === 'Rejected' || status === 'Cancelled') {
+      const snap = await gD(ref);
+      const slotId = snap.exists() ? snap.data().slotId : null;
+      if (slotId) batch.delete(dc(window._db, 'booked_slots', slotId));
+    }
+    await batch.commit();
     showToast(`Appointment ${status.toLowerCase()}.`, 'success');
     loadAppointments();
   } catch (e) { showToast(e.message, 'error'); }
@@ -407,15 +416,33 @@ window.confirmDelete = (colName, id, label) => {
 };
 
 window.doDelete = async (colName, id) => {
-  const { doc: dc, deleteDoc: dDc } = window._firebase;
+  const { doc: dc, deleteDoc: dDc, getDoc: gD } = window._firebase;
   try {
-    await dDc(dc(window._db, colName, id));
+    const ref = dc(window._db, colName, id);
+    const dentistId = colName === 'reviews'
+      ? ((await gD(ref)).data() || {}).dentistId
+      : null;
+    await dDc(ref);
+    if (dentistId) await recalcDentistRating(dentistId);
     showToast('Deleted successfully.', 'success');
     closeModal('confirm-modal');
     const loaders = { dentists: loadDentists, services: loadServices, reviews: loadReviews };
     if (loaders[colName]) loaders[colName]();
   } catch (e) { showToast(e.message, 'error'); }
 };
+
+// Recomputes a dentist's rating counters from their remaining reviews.
+async function recalcDentistRating(dentistId) {
+  const { collection: col, getDocs: gDs, query: q, where: w, doc: dc, updateDoc: uDc } = window._firebase;
+  const snap = await gDs(q(col(window._db, 'reviews'), w('dentistId', '==', dentistId)));
+  const sum = snap.docs.reduce((a, d) => a + (Number(d.data().rating) || 0), 0);
+  const total = snap.size;
+  await uDc(dc(window._db, 'dentists', dentistId), {
+    ratingSum: sum,
+    totalReviews: total,
+    averageRating: total ? sum / total : 0,
+  });
+}
 
 // ────────── Helpers ──────────
 window.closeModal = (id) => document.getElementById(id).classList.add('hidden');

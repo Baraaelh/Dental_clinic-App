@@ -103,7 +103,8 @@ class AuthRemoteDatasource {
       createdAt: DateTime.now(),
     );
 
-    // Step 4: Write Firestore document — non-fatal; auth already succeeded.
+    // Step 4: Write Firestore document. Without it the app signs the user
+    // out on the next launch, so roll back the auth account if this fails.
     try {
       await _firestore
           .collection(AppConstants.usersCollection)
@@ -111,8 +112,15 @@ class AuthRemoteDatasource {
           .set(userModel.toMap());
       debugPrint('AuthDatasource.register: Firestore document created for uid=$uid');
     } catch (e) {
-      debugPrint('AuthDatasource.register: Firestore write failed (non-fatal) — $e');
-      // Auth account exists; the document can be written on next sign-in.
+      debugPrint('AuthDatasource.register: Firestore write failed — $e');
+      try {
+        await _auth.currentUser?.delete();
+      } catch (deleteError) {
+        debugPrint('AuthDatasource.register: rollback failed — $deleteError');
+        await _auth.signOut();
+      }
+      throw const AuthException(
+          'Could not save your profile. Please check your connection and try again.');
     }
 
     // Step 5: Send verification email — non-fatal.

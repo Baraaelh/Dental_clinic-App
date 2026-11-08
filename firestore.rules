@@ -2,14 +2,18 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions
+    // ───────────────────────── Helpers ─────────────────────────
+
     function isAuthenticated() {
       return request.auth != null;
     }
 
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
     function isAdmin() {
-      return isAuthenticated() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      return isAuthenticated() && userDoc().role == 'admin';
     }
 
     function isOwner(userId) {
@@ -17,79 +21,196 @@ service cloud.firestore {
     }
 
     function isActiveUser() {
-      return isAuthenticated() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isActive == true;
+      return isAuthenticated() && userDoc().isActive == true;
     }
 
-    // Users collection
+    function changedKeys() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    function apptPath(id) {
+      return /databases/$(database)/documents/appointments/$(id);
+    }
+
+    function slotPath(id) {
+      return /databases/$(database)/documents/booked_slots/$(id);
+    }
+
+    function reviewPath(id) {
+      return /databases/$(database)/documents/reviews/$(id);
+    }
+
+    function dentistPath(id) {
+      return /databases/$(database)/documents/dentists/$(id);
+    }
+
+    // ───────────────────────── Users ─────────────────────────
+    // Fields a user may never set on themselves: only admins change these.
+    function protectedUserFields() {
+      return ['uid', 'email', 'role', 'isActive', 'createdAt'];
+    }
+
     match /users/{userId} {
-      // Users can read their own document; admins can read all
       allow read: if isOwner(userId) || isAdmin();
-      // Users can create their own document on registration
-      allow create: if isOwner(userId);
-      // Users can update their own profile; admins can update any
-      allow update: if isOwner(userId) || isAdmin();
-      // Only admins can delete users
+
+      // Self-registration is always a plain, active patient.
+      allow create: if isOwner(userId)
+        && request.resource.data.uid == userId
+        && request.resource.data.role == 'patient'
+        && request.resource.data.isActive == true;
+
+      // Owners can edit their profile but not role / isActive / identity fields.
+      allow update: if isAdmin()
+        || (isOwner(userId) && !changedKeys().hasAny(protectedUserFields()));
+
       allow delete: if isAdmin();
     }
 
-    // Dentists collection
+    // ───────────────────────── Dentists ─────────────────────────
+    // A patient may only touch the rating counters, and only as part of the
+    // same write that creates their review (see /reviews below). The new
+    // values must equal the old ones plus that review's rating.
+    function previousRatingSum() {
+      return resource.data.get('ratingSum',
+        resource.data.get('averageRating', 0) * resource.data.get('totalReviews', 0));
+    }
+
+    function isRatingUpdateForNewReview(dentistId) {
+      let reviewId = request.auth.uid + '_' + dentistId;
+      let newData = request.resource.data;
+      return isActiveUser()
+        && changedKeys().hasOnly(['ratingSum', 'totalReviews', 'averageRating'])
+        && !exists(reviewPath(reviewId))
+        && existsAfter(reviewPath(reviewId))
+        && newData.ratingSum == previousRatingSum() + getAfter(reviewPath(reviewId)).data.rating
+        && newData.totalReviews == resource.data.get('totalReviews', 0) + 1
+        && newData.averageRating == float(newData.ratingSum) / float(newData.totalReviews);
+    }
+
     match /dentists/{dentistId} {
-      // Anyone authenticated can read dentists
       allow read: if isAuthenticated();
-      // Only admins can write dentists
-      allow write: if isAdmin();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || isRatingUpdateForNewReview(dentistId);
     }
 
-    // Services collection
+    // ───────────────────────── Services ─────────────────────────
     match /services/{serviceId} {
-      // Anyone authenticated can read services
       allow read: if isAuthenticated();
-      // Only admins can write services
       allow write: if isAdmin();
     }
 
-    // Appointments collection
+    // ───────────────────────── Appointments ─────────────────────────
+    function appointmentFields() {
+      return ['patientId', 'patientName', 'dentistId', 'dentistName', 'date',
+              'time', 'status', 'isPaid', 'createdAt', 'slotId'];
+    }
+
+    // The appointment must be written together with its booked_slots
+    // document, which is what prevents two patients booking the same time.
+    function hasMatchingSlot(appointmentId) {
+      let appt = request.resource.data;
+      let slot = getAfter(slotPath(appt.slotId)).data;
+      return slot.appointmentId == appointmentId
+        && slot.dentistId == appt.dentistId
+        && slot.time == appt.time;
+    }
+
     match /appointments/{appointmentId} {
-      // Patient can read their own appointments; dentist admin can read all
-      allow read: if isAuthenticated() &&
-        (resource.data.patientId == request.auth.uid || isAdmin());
-      // Active patients can create appointments for themselves
-      allow create: if isActiveUser() &&
-        request.resource.data.patientId == request.auth.uid;
-      // Patients can update their own appointments (cancel); admins can update all
-      allow update: if isAuthenticated() &&
-        (resource.data.patientId == request.auth.uid || isAdmin());
-      // Only admins can delete appointments
+      allow read: if isAuthenticated()
+        && (resource.data.patientId == request.auth.uid || isAdmin());
+
+      allow create: if isActiveUser()
+        && request.resource.data.keys().hasOnly(appointmentFields())
+        && request.resource.data.patientId == request.auth.uid
+        && request.resource.data.status == 'Pending'
+        && request.resource.data.isPaid is bool
+        && request.resource.data.date is timestamp
+        && hasMatchingSlot(appointmentId);
+
+      // Patients can only cancel their own upcoming appointment.
+      allow update: if isAdmin()
+        || (isAuthenticated()
+            && resource.data.patientId == request.auth.uid
+            && changedKeys().hasOnly(['status'])
+            && resource.data.status in ['Pending', 'Approved']
+            && request.resource.data.status == 'Cancelled');
+
       allow delete: if isAdmin();
     }
 
-    // Reviews collection
-    match /reviews/{reviewId} {
-      // Anyone authenticated can read reviews
-      allow read: if isAuthenticated();
-      // Active patients can create reviews for themselves
-      allow create: if isActiveUser() &&
-        request.resource.data.patientId == request.auth.uid;
-      // Patients can update their own reviews; admins can update any
-      allow update: if isAuthenticated() &&
-        (resource.data.patientId == request.auth.uid || isAdmin());
-      // Patients can delete their own reviews; admins can delete any
-      allow delete: if isAuthenticated() &&
-        (resource.data.patientId == request.auth.uid || isAdmin());
+    // ───────────────────────── Booked slots ─────────────────────────
+    // Public "this time is taken" markers. Id = <dentistId>_<yyyy-MM-dd>_<HH:mm>.
+    // They hold no patient data, so every signed-in user can read them.
+    function slotDayStart(day) {
+      let parts = day.split('-');
+      return timestamp.date(int(parts[0]), int(parts[1]), int(parts[2]));
     }
 
-    // Notifications collection
+    match /booked_slots/{slotId} {
+      allow read: if isAuthenticated();
+
+      allow create: if isActiveUser()
+        && request.resource.data.keys().hasOnly(['dentistId', 'date', 'time', 'appointmentId'])
+        && slotId == request.resource.data.dentistId + '_'
+                     + request.resource.data.date + '_'
+                     + request.resource.data.time
+        && getAfter(apptPath(request.resource.data.appointmentId)).data.patientId == request.auth.uid
+        && getAfter(apptPath(request.resource.data.appointmentId)).data.slotId == slotId
+        // The appointment's timestamp must fall on the slot's day
+        // (the app stores local midnight, so allow for any UTC offset).
+        && getAfter(apptPath(request.resource.data.appointmentId)).data.date
+             >= slotDayStart(request.resource.data.date) - duration.value(14, 'h')
+        && getAfter(apptPath(request.resource.data.appointmentId)).data.date
+             <= slotDayStart(request.resource.data.date) + duration.value(12, 'h');
+
+      // A slot is freed when its appointment is cancelled / rejected.
+      allow delete: if isAdmin()
+        || (get(apptPath(resource.data.appointmentId)).data.patientId == request.auth.uid
+            && getAfter(apptPath(resource.data.appointmentId)).data.status == 'Cancelled');
+
+      allow update: if isAdmin();
+    }
+
+    // ───────────────────────── Reviews ─────────────────────────
+    // One review per patient per dentist: id = <patientId>_<dentistId>.
+    function reviewFields() {
+      return ['patientId', 'patientName', 'patientImage', 'dentistId',
+              'appointmentId', 'rating', 'comment', 'createdAt'];
+    }
+
+    function isValidNewReview(reviewId) {
+      let r = request.resource.data;
+      let appt = get(apptPath(r.appointmentId)).data;
+      return r.keys().hasOnly(reviewFields())
+        && reviewId == request.auth.uid + '_' + r.dentistId
+        && r.patientId == request.auth.uid
+        && r.rating is number && r.rating >= 1 && r.rating <= 5
+        && r.comment is string && r.comment.size() <= 1000
+        // Must have actually completed an appointment with this dentist.
+        && appt.patientId == request.auth.uid
+        && appt.dentistId == r.dentistId
+        && appt.status == 'Completed'
+        // ...and the dentist's rating must be updated in the same write.
+        && getAfter(dentistPath(r.dentistId)).data.totalReviews
+             == get(dentistPath(r.dentistId)).data.get('totalReviews', 0) + 1;
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if isAuthenticated();
+      allow create: if isActiveUser() && isValidNewReview(reviewId);
+      // Editing/deleting changes the dentist's average, so admins only.
+      allow update, delete: if isAdmin();
+    }
+
+    // ───────────────────────── Notifications ─────────────────────────
     match /notifications/{notificationId} {
-      // Users can read their own notifications; admins can read all
-      allow read: if isAuthenticated() &&
-        (resource.data.receiverId == request.auth.uid || isAdmin());
-      // Only admins and server can create notifications
+      allow read: if isAuthenticated()
+        && (resource.data.receiverId == request.auth.uid || isAdmin());
       allow create: if isAdmin();
-      // Users can update (mark as read) their own notifications
-      allow update: if isAuthenticated() &&
-        resource.data.receiverId == request.auth.uid;
-      // Only admins can delete notifications
+      // Users can only mark their own notifications as read.
+      allow update: if isAuthenticated()
+        && resource.data.receiverId == request.auth.uid
+        && changedKeys().hasOnly(['isRead']);
       allow delete: if isAdmin();
     }
   }

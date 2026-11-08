@@ -1,5 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/app_exception.dart';
+
+import '../../../dentists/presentation/controllers/dentist_controller.dart';
 import '../../data/datasources/review_remote_datasource.dart';
 import '../../data/repositories/review_repository_impl.dart';
 import '../../domain/models/review_model.dart';
@@ -51,6 +54,13 @@ class SubmitReviewController extends AsyncNotifier<void> {
   }) async {
     state = const AsyncLoading();
     try {
+      final repo = ref.read(reviewRepositoryProvider);
+      final appointmentId =
+          await repo.getCompletedAppointmentId(patientId, dentistId);
+      if (appointmentId == null) {
+        throw Exception(
+            'You can only review a dentist after a completed appointment');
+      }
       final review = ReviewModel(
         id: '',
         patientId: patientId,
@@ -59,11 +69,17 @@ class SubmitReviewController extends AsyncNotifier<void> {
         dentistId: dentistId,
         rating: rating,
         comment: comment,
+        appointmentId: appointmentId,
       );
-      await ref.read(reviewRepositoryProvider).addReview(review);
+      await repo.addReview(review);
       ref.invalidate(dentistReviewsProvider(dentistId));
       ref.invalidate(ratingBreakdownProvider(dentistId));
+      ref.invalidate(canReviewProvider);
+      ref.invalidate(dentistDetailProvider(dentistId));
       state = const AsyncData(null);
+    } on AppException catch (e, st) {
+      state = AsyncError(e, st);
+      throw Exception(e.message);
     } catch (e, st) {
       state = AsyncError(e, st);
       rethrow;

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/errors/app_exception.dart';
+import '../../../appointments/data/datasources/appointment_remote_datasource.dart';
 import '../../../appointments/domain/models/appointment_model.dart';
 import '../../../authentication/domain/models/user_model.dart';
 
@@ -113,17 +114,10 @@ class AdminRemoteDatasource {
     }
   }
 
-  Future<void> updateAppointmentStatus(
-      String appointmentId, String status) async {
-    try {
-      await _firestore
-          .collection(AppConstants.appointmentsCollection)
-          .doc(appointmentId)
-          .update({'status': status});
-    } catch (e) {
-      throw ServerException('Failed to update appointment: $e');
-    }
-  }
+  /// Same logic as the patient side: rejecting/cancelling frees the slot.
+  Future<void> updateAppointmentStatus(String appointmentId, String status) =>
+      AppointmentRemoteDatasource(firestore: _firestore)
+          .updateAppointmentStatus(appointmentId, status);
 
   Future<List<AppointmentModel>> getAllAppointments({
     String? status,
