@@ -16,7 +16,11 @@ class StorageService {
   }) async {
     try {
       final ref = _storage.ref().child(path);
-      final uploadTask = ref.putFile(file);
+      // Storage rules only accept images, so send the content type.
+      final uploadTask = ref.putFile(
+        file,
+        SettableMetadata(contentType: _contentTypeFor(path)),
+      );
 
       if (onProgress != null) {
         uploadTask.snapshotEvents.listen((snapshot) {
@@ -49,13 +53,21 @@ class StorageService {
     }
   }
 
+  /// Best effort: never throws (e.g. for external URLs or missing files).
   Future<void> deleteFile(String url) async {
     try {
       final ref = _storage.refFromURL(url);
       await ref.delete();
-    } on FirebaseException catch (e) {
-      debugPrint('Failed to delete file: ${e.message}');
+    } catch (e) {
+      debugPrint('Failed to delete file: $e');
     }
+  }
+
+  static String _contentTypeFor(String path) {
+    final lower = path.toLowerCase();
+    if (lower.endsWith('.png')) return 'image/png';
+    if (lower.endsWith('.webp')) return 'image/webp';
+    return 'image/jpeg';
   }
 
   String generatePath(String folder, String uid, String extension) {

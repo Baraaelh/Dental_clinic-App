@@ -14,49 +14,50 @@ final dentistListProvider =
     AsyncNotifierProvider<DentistListController, List<DentistModel>>(
         DentistListController.new);
 
+/// Loads every dentist once, then searches and filters in memory.
+/// A clinic has a small number of dentists, so this avoids a Firestore
+/// query per keystroke and makes search cover all of them (the old
+/// version only searched the first page of 10).
 class DentistListController extends AsyncNotifier<List<DentistModel>> {
+  static const _maxDentists = 200;
+
+  List<DentistModel> _all = const [];
   String _searchQuery = '';
   String _specialization = '';
 
   @override
-  Future<List<DentistModel>> build() => _fetch();
-
-  Future<List<DentistModel>> _fetch() {
-    return ref.read(dentistRepositoryProvider).getDentists(
-          specialization: _specialization.isEmpty ? null : _specialization,
-          searchQuery: _searchQuery.isEmpty ? null : _searchQuery,
-        );
+  Future<List<DentistModel>> build() async {
+    _all = await ref
+        .read(dentistRepositoryProvider)
+        .getDentists(limit: _maxDentists);
+    return _applyFilters();
   }
 
-  Future<void> search(String query) async {
+  List<DentistModel> _applyFilters() {
+    final q = _searchQuery.trim().toLowerCase();
+    return _all.where((d) {
+      if (_specialization.isNotEmpty && d.specialization != _specialization) {
+        return false;
+      }
+      if (q.isEmpty) return true;
+      return d.name.toLowerCase().contains(q) ||
+          d.specialization.toLowerCase().contains(q);
+    }).toList();
+  }
+
+  void search(String query) {
     _searchQuery = query;
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(_fetch);
+    if (state.hasValue) state = AsyncData(_applyFilters());
   }
 
-  Future<void> filterBySpecialization(String specialization) async {
+  void filterBySpecialization(String specialization) {
     _specialization = specialization;
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(_fetch);
+    if (state.hasValue) state = AsyncData(_applyFilters());
   }
 
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(_fetch);
-  }
-
-  Future<void> loadMore() async {
-    final current = state.valueOrNull ?? [];
-    try {
-      final more = await ref.read(dentistRepositoryProvider).getDentists(
-            specialization: _specialization.isEmpty ? null : _specialization,
-            searchQuery: _searchQuery.isEmpty ? null : _searchQuery,
-            lastDentist: current.isNotEmpty ? current.last : null,
-          );
-      state = AsyncData([...current, ...more]);
-    } catch (e, st) {
-      state = AsyncError(e, st);
-    }
+    state = await AsyncValue.guard(build);
   }
 }
 

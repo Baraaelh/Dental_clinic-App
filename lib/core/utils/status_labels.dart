@@ -21,21 +21,23 @@ String appointmentStatusLabel(AppLocalizations l10n, String status) {
 }
 
 /// Translated weekday name for the English names stored in `workingDays`.
+/// Also accepts 3-letter names such as "Mon".
 String weekdayLabel(AppLocalizations l10n, String day) {
-  switch (day.toLowerCase()) {
-    case 'monday':
+  final key = day.trim().toLowerCase();
+  switch (key.length < 3 ? key : key.substring(0, 3)) {
+    case 'mon':
       return l10n.monday;
-    case 'tuesday':
+    case 'tue':
       return l10n.tuesday;
-    case 'wednesday':
+    case 'wed':
       return l10n.wednesday;
-    case 'thursday':
+    case 'thu':
       return l10n.thursday;
-    case 'friday':
+    case 'fri':
       return l10n.friday;
-    case 'saturday':
+    case 'sat':
       return l10n.saturday;
-    case 'sunday':
+    case 'sun':
       return l10n.sunday;
     default:
       return day;

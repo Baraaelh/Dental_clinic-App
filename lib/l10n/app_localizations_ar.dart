@@ -999,4 +999,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get paid => 'مدفوع';
+
+  @override
+  String get loadMore => 'عرض المزيد';
+
+  @override
+  String get endTimeAfterStart => 'يجب أن يكون وقت النهاية بعد وقت البداية';
 }

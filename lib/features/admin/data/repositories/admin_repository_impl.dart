@@ -17,7 +17,7 @@ class AdminRepositoryImpl implements AdminRepository {
 
   @override
   Future<List<UserModel>> getAllPatients({int limit = 20, UserModel? lastUser}) =>
-      _datasource.getAllPatients(limit: limit);
+      _datasource.getAllPatients(limit: limit, after: lastUser);
 
   @override
   Future<void> toggleUserStatus(String uid, bool isActive) =>

@@ -127,7 +127,23 @@ window.editDentist = async (id) => {
 window.saveDentist = async () => {
   const { collection: col, doc: dc, addDoc: aDc, updateDoc: uDc } = window._firebase;
   const id   = document.getElementById('dentist-id').value;
-  const days = document.getElementById('d-days').value.split(',').map(s=>s.trim()).filter(Boolean);
+  // Store full English day names ("Monday"), which the app matches on.
+  const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const rawDays = document.getElementById('d-days').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const days = [];
+  for (const raw of rawDays) {
+    const match = DAY_NAMES.find(d => raw.length >= 3 && d.toLowerCase().startsWith(raw.toLowerCase().slice(0, 3)));
+    if (!match) { showToast(`Unknown working day: "${raw}". Use e.g. Sunday, Monday.`, 'error'); return; }
+    if (!days.includes(match)) days.push(match);
+  }
+  const start = document.getElementById('d-start').value.trim();
+  const end   = document.getElementById('d-end').value.trim();
+  const timeOk = (t) => /^([01]\d|2[0-3]):[0-5]\d$/.test(t);
+  if (!timeOk(start) || !timeOk(end) || start >= end) {
+    showToast('Working hours must be valid times, with the end after the start.', 'error');
+    return;
+  }
+  if (!days.length) { showToast('Select at least one working day.', 'error'); return; }
   const data = {
     name:           document.getElementById('d-name').value.trim(),
     specialization: document.getElementById('d-spec').value.trim(),
@@ -135,10 +151,7 @@ window.saveDentist = async () => {
     image:          document.getElementById('d-img').value.trim(),
     description:    document.getElementById('d-desc').value.trim(),
     workingDays:    days,
-    workingHours: {
-      start: document.getElementById('d-start').value.trim(),
-      end:   document.getElementById('d-end').value.trim(),
-    },
+    workingHours: { start, end },
   };
   if (!data.name || !data.specialization) { showToast('Name and specialization are required.', 'error'); return; }
   try {

@@ -166,7 +166,14 @@ class AuthRemoteDatasource {
         await _auth.signOut();
         return null;
       }
-      return UserModel.fromFirestore(doc);
+      final model = UserModel.fromFirestore(doc);
+      // Auto-login must respect a disabled account, like signIn() does.
+      if (!model.isActive) {
+        debugPrint('AuthDatasource: account disabled for uid=${user.uid}, signing out');
+        await _auth.signOut();
+        return null;
+      }
+      return model;
     } catch (e) {
       debugPrint('AuthDatasource: getCurrentUser error: $e');
       return null;

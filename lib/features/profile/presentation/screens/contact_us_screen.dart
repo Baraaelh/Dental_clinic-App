@@ -8,10 +8,25 @@ import '../../../../l10n/app_localizations.dart';
 class ContactUsScreen extends StatelessWidget {
   const ContactUsScreen({super.key});
 
-  Future<void> _launch(String url) async {
-    final uri = Uri.parse(url);
-    if (await url_launcher.canLaunchUrl(uri)) {
-      await url_launcher.launchUrl(uri, mode: url_launcher.LaunchMode.externalApplication);
+  Future<void> _launch(BuildContext context, String url) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final message = AppLocalizations.of(context).somethingWentWrong;
+    var opened = false;
+    try {
+      opened = await url_launcher.launchUrl(
+        Uri.parse(url),
+        mode: url_launcher.LaunchMode.externalApplication,
+      );
+    } catch (_) {
+      opened = false;
+    }
+    // e.g. no phone or email app installed: tell the user instead of
+    // silently doing nothing.
+    if (!opened) {
+      messenger.showSnackBar(SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+      ));
     }
   }
 
@@ -100,7 +115,7 @@ class ContactUsScreen extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 12),
               child: InkWell(
                 borderRadius: BorderRadius.circular(16),
-                onTap: () => _launch(item.url),
+                onTap: () => _launch(context, item.url),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(

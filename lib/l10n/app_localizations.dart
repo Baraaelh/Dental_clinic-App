@@ -2029,6 +2029,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paid'**
   String get paid;
+
+  /// No description provided for @loadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get loadMore;
+
+  /// No description provided for @endTimeAfterStart.
+  ///
+  /// In en, this message translates to:
+  /// **'End time must be after start time'**
+  String get endTimeAfterStart;
 }
 
 class _AppLocalizationsDelegate

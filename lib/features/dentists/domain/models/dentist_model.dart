@@ -100,9 +100,16 @@ class DentistModel {
     );
   }
 
+  /// Matches full or 3-letter day names, case-insensitively
+  /// ("Monday", "monday" and "Mon" all match Monday).
   bool isWorkingOn(String dayName) {
-    final lower = dayName.toLowerCase();
-    return workingDays.any((d) => d.toLowerCase() == lower);
+    final key = _dayKey(dayName);
+    return key.isNotEmpty && workingDays.any((d) => _dayKey(d) == key);
+  }
+
+  static String _dayKey(String day) {
+    final t = day.trim().toLowerCase();
+    return t.length < 3 ? '' : t.substring(0, 3);
   }
 
   String get workStartTime => workingHours['start'] ?? '09:00';

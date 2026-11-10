@@ -31,9 +31,23 @@ class ManageUsersScreen extends ConsumerWidget {
                 icon: Icons.people_outline,
               );
             }
+            final controller = ref.read(allPatientsProvider.notifier);
+            final showLoadMore = controller.hasMore;
             return ListView.builder(
-              itemCount: patients.length,
+              itemCount: patients.length + (showLoadMore ? 1 : 0),
               itemBuilder: (context, index) {
+                if (index == patients.length) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: OutlinedButton.icon(
+                        onPressed: controller.loadMore,
+                        icon: const Icon(Icons.expand_more),
+                        label: Text(l10n.loadMore),
+                      ),
+                    ),
+                  );
+                }
                 final patient = patients[index];
                 return _PatientTile(
                   patient: patient,

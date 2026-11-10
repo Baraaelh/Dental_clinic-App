@@ -21,6 +21,7 @@ class ProfileController extends AsyncNotifier<void> {
     state = const AsyncLoading();
     try {
       String? imageUrl;
+      final oldImage = ref.read(currentUserProvider)?.profileImage ?? '';
 
       if (imageFile != null) {
         final path = StorageService.instance.generatePath(
@@ -39,9 +40,14 @@ class ProfileController extends AsyncNotifier<void> {
             profileImage: imageUrl,
           );
 
-      // currentUserProvider is now derived from authStateProvider — it will
-      // reflect the update the next time the auth stream re-emits. No manual
-      // state write needed.
+      // Re-read the profile so the new name/photo show everywhere now.
+      // (The repository dropped its cached user in updateProfile.)
+      ref.invalidate(authStateProvider);
+
+      // Remove the replaced photo from Storage (best effort).
+      if (imageUrl != null && oldImage.isNotEmpty && oldImage != imageUrl) {
+        await StorageService.instance.deleteFile(oldImage);
+      }
 
       state = const AsyncData(null);
     } catch (e, st) {

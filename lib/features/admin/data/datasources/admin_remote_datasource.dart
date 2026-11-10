@@ -82,16 +82,19 @@ class AdminRemoteDatasource {
 
   Future<List<UserModel>> getAllPatients({
     int limit = 20,
-    DocumentSnapshot? lastDoc,
+    UserModel? after,
   }) async {
     try {
+      // Ordered by name, then id, so patients with the same name page
+      // correctly.
       Query query = _firestore
           .collection(AppConstants.usersCollection)
           .where('role', isEqualTo: AppConstants.rolePatient)
           .orderBy('name')
+          .orderBy(FieldPath.documentId)
           .limit(limit);
 
-      if (lastDoc != null) query = query.startAfterDocument(lastDoc);
+      if (after != null) query = query.startAfter([after.name, after.uid]);
 
       final snapshot = await query.get();
       return snapshot.docs
