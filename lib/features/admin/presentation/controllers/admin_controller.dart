@@ -27,24 +27,55 @@ final allPatientsProvider =
         PatientsController.new);
 
 class PatientsController extends AsyncNotifier<List<UserModel>> {
-  @override
-  Future<List<UserModel>> build() {
-    return ref.read(adminRepositoryProvider).getAllPatients();
+  static const pageSize = 20;
+
+  bool _hasMore = true;
+  bool _loadingMore = false;
+
+  /// Whether another page of patients may exist.
+  bool get hasMore => _hasMore;
+
+  Future<List<UserModel>> _page({UserModel? after}) async {
+    final page = await ref
+        .read(adminRepositoryProvider)
+        .getAllPatients(limit: pageSize, lastUser: after);
+    _hasMore = page.length == pageSize;
+    return page;
   }
 
+  @override
+  Future<List<UserModel>> build() => _page();
+
+  Future<void> loadMore() async {
+    final current = state.valueOrNull;
+    if (current == null || current.isEmpty || !_hasMore || _loadingMore) return;
+    _loadingMore = true;
+    try {
+      final more = await _page(after: current.last);
+      state = AsyncData([...current, ...more]);
+    } catch (e, st) {
+      state = AsyncError<List<UserModel>>(e, st).copyWithPrevious(state);
+    } finally {
+      _loadingMore = false;
+    }
+  }
+
+  /// Blocks/unblocks a patient and updates the list in place (keeps the
+  /// pages already loaded).
   Future<void> toggleStatus(String uid, bool currentStatus) async {
     await ref
         .read(adminRepositoryProvider)
         .toggleUserStatus(uid, !currentStatus);
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(
-        () => ref.read(adminRepositoryProvider).getAllPatients());
+    final current = state.valueOrNull ?? const <UserModel>[];
+    state = AsyncData([
+      for (final u in current)
+        u.uid == uid ? u.copyWith(isActive: !currentStatus) : u,
+    ]);
   }
 
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(
-        () => ref.read(adminRepositoryProvider).getAllPatients());
+    state = await AsyncValue.guard(_page);
   }
 }
 

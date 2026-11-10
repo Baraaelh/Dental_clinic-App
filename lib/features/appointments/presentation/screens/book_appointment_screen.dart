@@ -46,13 +46,15 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
           if (!_initialDayChosen) {
             _initialDayChosen = true;
             if (dentist.workingDays.isNotEmpty) {
-              var day = DateTime.now();
+              final today = DateTime.now();
               for (var i = 0; i < 7; i++) {
-                if (dentist.isWorkingOn(_getDayName(day.weekday))) break;
-                day = day.add(const Duration(days: 1));
+                final day = today.add(Duration(days: i));
+                if (dentist.isWorkingOn(_getDayName(day.weekday))) {
+                  _selectedDay = day;
+                  _focusedDay = day;
+                  break;
+                }
               }
-              _selectedDay = day;
-              _focusedDay = day;
             }
           }
           final bookedSlotsAsync = ref.watch(

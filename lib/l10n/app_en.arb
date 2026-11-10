@@ -364,5 +364,7 @@
   "errorUserDataNotFound": "Account data not found. Please contact the clinic.",
   "errorPermissionDenied": "You don't have permission to do this",
   "errorNotFound": "The requested item was not found",
-  "paid": "Paid"
+  "paid": "Paid",
+  "loadMore": "Load more",
+  "endTimeAfterStart": "End time must be after start time"
 }

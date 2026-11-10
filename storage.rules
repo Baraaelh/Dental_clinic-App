@@ -1,0 +1,52 @@
+rules_version = '2';
+
+// Firebase Storage rules for uploaded images.
+// Paths come from StorageService.generatePath: <folder>/<id>_<timestamp>.jpg
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Reads the user's role from Firestore (cross-service rules).
+    function isAdmin() {
+      return isSignedIn()
+        && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isImageUnder5MB() {
+      return request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // Each user can only upload/delete their own profile photos:
+    // profile_images/<uid>_<timestamp>.jpg
+    match /profile_images/{fileName} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn()
+        && fileName.matches(request.auth.uid + '_[0-9]+[.]jpg')
+        && isImageUnder5MB();
+      allow delete: if isAdmin()
+        || (isSignedIn() && fileName.matches(request.auth.uid + '_[0-9]+[.]jpg'));
+    }
+
+    // Dentist and service photos are managed by admins only.
+    match /dentist_images/{fileName} {
+      allow read: if isSignedIn();
+      allow create, update: if isAdmin() && isImageUnder5MB();
+      allow delete: if isAdmin();
+    }
+
+    match /service_images/{fileName} {
+      allow read: if isSignedIn();
+      allow create, update: if isAdmin() && isImageUnder5MB();
+      allow delete: if isAdmin();
+    }
+
+    // Anything else is closed.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

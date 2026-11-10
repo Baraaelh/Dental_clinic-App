@@ -1,39 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import '../constants/app_constants.dart';
 import '../../l10n/app_localizations.dart';
 
 class AppHelpers {
   const AppHelpers._();
 
+  /// Parses "HH:mm" (also "H:mm"). Returns null for anything else.
+  static DateTime? _parseTime(String value) {
+    final m = RegExp(r'^\s*(\d{1,2}):(\d{2})\s*$').firstMatch(value);
+    if (m == null) return null;
+    final h = int.parse(m.group(1)!);
+    final min = int.parse(m.group(2)!);
+    if (h > 23 || min > 59) return null;
+    return DateTime(2000, 1, 1, h, min);
+  }
+
+  /// Bookable slot start times between [start] and [end].
+  /// Returns an empty list (instead of throwing) when the working hours
+  /// stored for a dentist are missing or malformed.
   static List<String> generateTimeSlots({
     String start = AppConstants.workStartTime,
     String end = AppConstants.workEndTime,
     int slotDuration = AppConstants.slotDurationMinutes,
   }) {
     final slots = <String>[];
-    final startParts = start.split(':');
-    final endParts = end.split(':');
+    var current = _parseTime(start);
+    final endTime = _parseTime(end);
+    if (current == null || endTime == null || slotDuration <= 0) return slots;
 
-    var current = DateTime(
-      2000,
-      1,
-      1,
-      int.parse(startParts[0]),
-      int.parse(startParts[1]),
-    );
-    final endTime = DateTime(
-      2000,
-      1,
-      1,
-      int.parse(endParts[0]),
-      int.parse(endParts[1]),
-    );
-
-    while (current.isBefore(endTime)) {
+    while (current!.isBefore(endTime)) {
       // Always Latin digits: slot times are parsed and used in Firestore ids.
-      slots.add(DateFormat('HH:mm', 'en').format(current));
+      slots.add('${current.hour.toString().padLeft(2, '0')}:'
+          '${current.minute.toString().padLeft(2, '0')}');
       current = current.add(Duration(minutes: slotDuration));
     }
     return slots;

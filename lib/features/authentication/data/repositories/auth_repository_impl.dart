@@ -61,7 +61,7 @@ class AuthRepositoryImpl implements AuthRepository {
           role: AppConstants.rolePatient,
           isActive: true,
         );
-        _userCache = fallback;
+        // Not cached, so the real profile is loaded on the next refresh.
         return fallback;
       }
 
@@ -114,13 +114,16 @@ class AuthRepositoryImpl implements AuthRepository {
     String? name,
     String? phone,
     String? profileImage,
-  }) =>
-      _datasource.updateProfile(
-        uid: uid,
-        name: name,
-        phone: phone,
-        profileImage: profileImage,
-      );
+  }) async {
+    await _datasource.updateProfile(
+      uid: uid,
+      name: name,
+      phone: phone,
+      profileImage: profileImage,
+    );
+    // Drop the cached profile so the next auth-state read loads fresh data.
+    _userCache = null;
+  }
 
   @override
   Future<void> changePassword({

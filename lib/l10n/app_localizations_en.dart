@@ -1010,4 +1010,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paid => 'Paid';
+
+  @override
+  String get loadMore => 'Load more';
+
+  @override
+  String get endTimeAfterStart => 'End time must be after start time';
 }

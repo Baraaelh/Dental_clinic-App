@@ -87,6 +87,19 @@ class _AddEditDentistScreenState extends ConsumerState<AddEditDentistScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    if (AppHelpers.generateTimeSlots(
+      start: _startTimeCtrl.text,
+      end: _endTimeCtrl.text,
+    ).isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).endTimeAfterStart),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
     if (_selectedDays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
