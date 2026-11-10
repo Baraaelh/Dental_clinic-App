@@ -39,5 +39,5 @@ class SlotUnavailableException extends AppException {
   const SlotUnavailableException(
       [super.message =
           'This time slot is already booked. Please select another.'])
-      : super(code: 'slot-unavailable');
+      : super(code: 'slot-unavailable'); // AppErrorCodes.slotUnavailable
 }

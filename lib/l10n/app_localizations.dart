@@ -1651,6 +1651,384 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Appointment reminder for tomorrow'**
   String get notificationReminder;
+
+  /// No description provided for @appTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Your smile, our priority'**
+  String get appTagline;
+
+  /// No description provided for @payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get payment;
+
+  /// No description provided for @appointmentSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointment Summary'**
+  String get appointmentSummary;
+
+  /// No description provided for @doctorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor'**
+  String get doctorLabel;
+
+  /// No description provided for @dateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get dateLabel;
+
+  /// No description provided for @timeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get timeLabel;
+
+  /// No description provided for @doctorName.
+  ///
+  /// In en, this message translates to:
+  /// **'Dr. {name}'**
+  String doctorName(String name);
+
+  /// No description provided for @depositAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit Amount'**
+  String get depositAmount;
+
+  /// No description provided for @amountWithCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} JD'**
+  String amountWithCurrency(String amount);
+
+  /// No description provided for @paymentMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Method'**
+  String get paymentMethod;
+
+  /// No description provided for @payAtClinic.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay at the clinic'**
+  String get payAtClinic;
+
+  /// No description provided for @payAtClinicSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay the deposit when you arrive'**
+  String get payAtClinicSubtitle;
+
+  /// No description provided for @payByCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay deposit by card'**
+  String get payByCard;
+
+  /// No description provided for @payByCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo mode: no real charge'**
+  String get payByCardSubtitle;
+
+  /// No description provided for @demoPaymentNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Online payment is in demo mode. No card is charged, so please don\'t enter real card details.'**
+  String get demoPaymentNotice;
+
+  /// No description provided for @cardDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Card Details'**
+  String get cardDetails;
+
+  /// No description provided for @cardNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Card Number'**
+  String get cardNumber;
+
+  /// No description provided for @expiryDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry Date'**
+  String get expiryDate;
+
+  /// No description provided for @cvv.
+  ///
+  /// In en, this message translates to:
+  /// **'CVV'**
+  String get cvv;
+
+  /// No description provided for @cardNumberRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Card number is required'**
+  String get cardNumberRequired;
+
+  /// No description provided for @cardNumberInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid card number'**
+  String get cardNumberInvalid;
+
+  /// No description provided for @expiryRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry date is required'**
+  String get expiryRequired;
+
+  /// No description provided for @expiryInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid expiry (MM/YY)'**
+  String get expiryInvalid;
+
+  /// No description provided for @cardExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Card is expired'**
+  String get cardExpired;
+
+  /// No description provided for @cvvRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'CVV is required'**
+  String get cvvRequired;
+
+  /// No description provided for @cvvInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid 3 or 4 digit CVV'**
+  String get cvvInvalid;
+
+  /// No description provided for @payDepositButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay Deposit ({amount})'**
+  String payDepositButton(String amount);
+
+  /// No description provided for @paymentSuccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Successful!'**
+  String get paymentSuccessTitle;
+
+  /// No description provided for @bookingPendingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your appointment has been booked.\nThe clinic will confirm it shortly.'**
+  String get bookingPendingMessage;
+
+  /// No description provided for @payAtClinicReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Please pay the deposit ({amount}) when you arrive.'**
+  String payAtClinicReminder(String amount);
+
+  /// No description provided for @quickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Actions'**
+  String get quickActions;
+
+  /// No description provided for @dashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get dashboard;
+
+  /// No description provided for @appointments.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointments'**
+  String get appointments;
+
+  /// No description provided for @users.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get users;
+
+  /// No description provided for @noAppointmentData.
+  ///
+  /// In en, this message translates to:
+  /// **'No appointment data'**
+  String get noAppointmentData;
+
+  /// No description provided for @pleaseSelectRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a rating'**
+  String get pleaseSelectRating;
+
+  /// No description provided for @selectAtLeastOneWorkingDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select at least one working day'**
+  String get selectAtLeastOneWorkingDay;
+
+  /// No description provided for @commentTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment must be at most 1000 characters'**
+  String get commentTooLong;
+
+  /// No description provided for @ratingPoor.
+  ///
+  /// In en, this message translates to:
+  /// **'Poor'**
+  String get ratingPoor;
+
+  /// No description provided for @ratingFair.
+  ///
+  /// In en, this message translates to:
+  /// **'Fair'**
+  String get ratingFair;
+
+  /// No description provided for @ratingGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get ratingGood;
+
+  /// No description provided for @ratingVeryGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Very Good'**
+  String get ratingVeryGood;
+
+  /// No description provided for @ratingExcellent.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent'**
+  String get ratingExcellent;
+
+  /// No description provided for @tapToRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to rate'**
+  String get tapToRate;
+
+  /// No description provided for @notificationTitleApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointment Approved'**
+  String get notificationTitleApproved;
+
+  /// No description provided for @notificationTitleRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointment Rejected'**
+  String get notificationTitleRejected;
+
+  /// No description provided for @notificationTitleCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointment Cancelled'**
+  String get notificationTitleCancelled;
+
+  /// No description provided for @notificationTitleCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointment Completed'**
+  String get notificationTitleCompleted;
+
+  /// No description provided for @notificationCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your appointment has been completed. Thank you for visiting us!'**
+  String get notificationCompleted;
+
+  /// No description provided for @errorUserNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No account found with this email'**
+  String get errorUserNotFound;
+
+  /// No description provided for @errorWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect password'**
+  String get errorWrongPassword;
+
+  /// No description provided for @errorInvalidCredential.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email or password'**
+  String get errorInvalidCredential;
+
+  /// No description provided for @errorEmailInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'An account already exists with this email'**
+  String get errorEmailInUse;
+
+  /// No description provided for @errorInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email address'**
+  String get errorInvalidEmail;
+
+  /// No description provided for @errorAccountDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been disabled. Please contact the clinic.'**
+  String get errorAccountDisabled;
+
+  /// No description provided for @errorTooManyRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Please try again later'**
+  String get errorTooManyRequests;
+
+  /// No description provided for @errorWeakPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is too weak'**
+  String get errorWeakPassword;
+
+  /// No description provided for @errorRequiresRecentLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in again to complete this action'**
+  String get errorRequiresRecentLogin;
+
+  /// No description provided for @errorProfileSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save your profile. Please check your connection and try again.'**
+  String get errorProfileSaveFailed;
+
+  /// No description provided for @errorUserDataNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Account data not found. Please contact the clinic.'**
+  String get errorUserDataNotFound;
+
+  /// No description provided for @errorPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have permission to do this'**
+  String get errorPermissionDenied;
+
+  /// No description provided for @errorNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'The requested item was not found'**
+  String get errorNotFound;
+
+  /// No description provided for @paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get paid;
 }
 
 class _AppLocalizationsDelegate

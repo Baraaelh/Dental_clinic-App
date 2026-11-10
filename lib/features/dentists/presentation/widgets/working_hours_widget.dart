@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/models/dentist_model.dart';
+import '../../../../core/utils/status_labels.dart';
 
 class WorkingHoursWidget extends StatelessWidget {
   const WorkingHoursWidget({super.key, required this.dentist});
@@ -33,7 +34,7 @@ class WorkingHoursWidget extends StatelessWidget {
                 border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
               ),
               child: Text(
-                day,
+                weekdayLabel(l10n, day),
                 style: const TextStyle(
                   color: AppColors.primary,
                   fontSize: 13,

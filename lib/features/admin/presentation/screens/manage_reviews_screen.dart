@@ -11,6 +11,7 @@ import '../../../../shared/widgets/error_widget.dart';
 import '../../../../shared/widgets/shimmer_loading.dart';
 import '../../../reviews/domain/models/review_model.dart';
 import '../../../reviews/presentation/controllers/review_controller.dart';
+import '../../../../core/errors/error_messages.dart';
 
 class ManageReviewsScreen extends ConsumerWidget {
   const ManageReviewsScreen({super.key});
@@ -45,7 +46,7 @@ class ManageReviewsScreen extends ConsumerWidget {
           },
           loading: () => const ShimmerListView(itemCount: 6, itemHeight: 120),
           error: (e, _) => AppErrorWidget(
-            message: e.toString(),
+            message: context.errorMessage(e),
             onRetry: () => ref.invalidate(allReviewsProvider),
           ),
         ),
@@ -80,7 +81,7 @@ class ManageReviewsScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
+            content: Text(context.errorMessage(e)),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),

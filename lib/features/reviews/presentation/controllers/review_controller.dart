@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/app_exception.dart';
+import '../../../../core/errors/error_messages.dart';
 
 import '../../../dentists/presentation/controllers/dentist_controller.dart';
 import '../../data/datasources/review_remote_datasource.dart';
@@ -58,8 +59,8 @@ class SubmitReviewController extends AsyncNotifier<void> {
       final appointmentId =
           await repo.getCompletedAppointmentId(patientId, dentistId);
       if (appointmentId == null) {
-        throw Exception(
-            'You can only review a dentist after a completed appointment');
+        throw const ValidationException('No completed appointment',
+            code: AppErrorCodes.reviewNotAllowed);
       }
       final review = ReviewModel(
         id: '',
@@ -77,9 +78,6 @@ class SubmitReviewController extends AsyncNotifier<void> {
       ref.invalidate(canReviewProvider);
       ref.invalidate(dentistDetailProvider(dentistId));
       state = const AsyncData(null);
-    } on AppException catch (e, st) {
-      state = AsyncError(e, st);
-      throw Exception(e.message);
     } catch (e, st) {
       state = AsyncError(e, st);
       rethrow;

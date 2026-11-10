@@ -77,7 +77,12 @@ class Validators {
     return null;
   }
 
-  static String? validateComment(String? value, {String? requiredMsg, String? shortMsg}) {
+  static String? validateComment(
+    String? value, {
+    String? requiredMsg,
+    String? shortMsg,
+    String? longMsg,
+  }) {
     if (value == null || value.trim().isEmpty) {
       return requiredMsg ?? 'Comment is required';
     }
@@ -86,7 +91,7 @@ class Validators {
     }
     // Firestore rules reject comments longer than this.
     if (value.trim().length > 1000) {
-      return 'Comment must be at most 1000 characters';
+      return longMsg ?? 'Comment must be at most 1000 characters';
     }
     return null;
   }

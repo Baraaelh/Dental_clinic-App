@@ -14,6 +14,8 @@ import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../dentists/domain/models/dentist_model.dart';
 import '../../../dentists/presentation/controllers/dentist_controller.dart';
+import '../../../../core/errors/error_messages.dart';
+import '../../../../core/utils/status_labels.dart';
 
 class AddEditDentistScreen extends ConsumerStatefulWidget {
   const AddEditDentistScreen({super.key, this.dentistId});
@@ -87,8 +89,8 @@ class _AddEditDentistScreenState extends ConsumerState<AddEditDentistScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedDays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select at least one working day'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).selectAtLeastOneWorkingDay),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
         ),
@@ -159,7 +161,7 @@ class _AddEditDentistScreenState extends ConsumerState<AddEditDentistScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception:', '').trim()),
+            content: Text(context.errorMessage(e)),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -290,7 +292,7 @@ class _AddEditDentistScreenState extends ConsumerState<AddEditDentistScreen> {
                 children: AppConstants.weekDays.map((day) {
                   final selected = _selectedDays.contains(day);
                   return FilterChip(
-                    label: Text(day.substring(0, 3)),
+                    label: Text(weekdayLabel(AppLocalizations.of(context), day)),
                     selected: selected,
                     onSelected: (v) {
                       setState(() {

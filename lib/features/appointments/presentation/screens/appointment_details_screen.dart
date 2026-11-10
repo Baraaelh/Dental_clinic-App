@@ -11,6 +11,8 @@ import '../../../../shared/widgets/loading_widget.dart';
 import '../../../../shared/widgets/status_chip.dart';
 import '../controllers/appointment_controller.dart';
 import '../widgets/status_timeline.dart';
+import '../../../../core/errors/error_messages.dart';
+import '../../../../core/utils/status_labels.dart';
 
 class AppointmentDetailsScreen extends ConsumerWidget {
   const AppointmentDetailsScreen({super.key, required this.appointmentId});
@@ -91,7 +93,7 @@ class AppointmentDetailsScreen extends ConsumerWidget {
                         const SizedBox(height: 12),
                         _DetailRow(
                           label: l10n.appointmentStatus,
-                          value: appointment.status,
+                          value: appointmentStatusLabel(l10n, appointment.status),
                           icon: Icons.info_outline,
                         ),
                       ],
@@ -124,7 +126,7 @@ class AppointmentDetailsScreen extends ConsumerWidget {
         },
         loading: () => const LoadingWidget(),
         error: (e, _) => AppErrorWidget(
-          message: e.toString(),
+          message: context.errorMessage(e),
           onRetry: () => ref.refresh(appointmentDetailProvider(appointmentId)),
         ),
       ),
@@ -162,7 +164,7 @@ class AppointmentDetailsScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
+            content: Text(context.errorMessage(e)),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),

@@ -796,4 +796,207 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notificationReminder => 'تذكير بموعدك غداً';
+
+  @override
+  String get appTagline => 'ابتسامتك أولويتنا';
+
+  @override
+  String get payment => 'الدفع';
+
+  @override
+  String get appointmentSummary => 'ملخص الموعد';
+
+  @override
+  String get doctorLabel => 'الطبيب';
+
+  @override
+  String get dateLabel => 'التاريخ';
+
+  @override
+  String get timeLabel => 'الوقت';
+
+  @override
+  String doctorName(String name) {
+    return 'د. $name';
+  }
+
+  @override
+  String get depositAmount => 'قيمة العربون';
+
+  @override
+  String amountWithCurrency(String amount) {
+    return '$amount د.أ';
+  }
+
+  @override
+  String get paymentMethod => 'طريقة الدفع';
+
+  @override
+  String get payAtClinic => 'الدفع في العيادة';
+
+  @override
+  String get payAtClinicSubtitle => 'ادفع العربون عند وصولك للعيادة';
+
+  @override
+  String get payByCard => 'دفع العربون بالبطاقة';
+
+  @override
+  String get payByCardSubtitle => 'وضع تجريبي: لن يُخصم أي مبلغ';
+
+  @override
+  String get demoPaymentNotice =>
+      'الدفع الإلكتروني في وضع تجريبي ولن يُخصم أي مبلغ، لذا لا تُدخل بيانات بطاقة حقيقية.';
+
+  @override
+  String get cardDetails => 'بيانات البطاقة';
+
+  @override
+  String get cardNumber => 'رقم البطاقة';
+
+  @override
+  String get expiryDate => 'تاريخ الانتهاء';
+
+  @override
+  String get cvv => 'CVV';
+
+  @override
+  String get cardNumberRequired => 'رقم البطاقة مطلوب';
+
+  @override
+  String get cardNumberInvalid => 'أدخل رقم بطاقة صحيح';
+
+  @override
+  String get expiryRequired => 'تاريخ الانتهاء مطلوب';
+
+  @override
+  String get expiryInvalid => 'أدخل تاريخ انتهاء صحيح (MM/YY)';
+
+  @override
+  String get cardExpired => 'البطاقة منتهية الصلاحية';
+
+  @override
+  String get cvvRequired => 'رمز التحقق مطلوب';
+
+  @override
+  String get cvvInvalid => 'أدخل رمز تحقق صحيح من 3 أو 4 أرقام';
+
+  @override
+  String payDepositButton(String amount) {
+    return 'ادفع العربون ($amount)';
+  }
+
+  @override
+  String get paymentSuccessTitle => 'تم الدفع بنجاح!';
+
+  @override
+  String get bookingPendingMessage =>
+      'تم حجز موعدك.\nستقوم العيادة بتأكيده قريباً.';
+
+  @override
+  String payAtClinicReminder(String amount) {
+    return 'يرجى دفع العربون ($amount) عند وصولك.';
+  }
+
+  @override
+  String get quickActions => 'إجراءات سريعة';
+
+  @override
+  String get dashboard => 'لوحة التحكم';
+
+  @override
+  String get appointments => 'المواعيد';
+
+  @override
+  String get users => 'المستخدمون';
+
+  @override
+  String get noAppointmentData => 'لا توجد بيانات مواعيد';
+
+  @override
+  String get pleaseSelectRating => 'يرجى اختيار التقييم';
+
+  @override
+  String get selectAtLeastOneWorkingDay => 'يرجى اختيار يوم عمل واحد على الأقل';
+
+  @override
+  String get commentTooLong => 'يجب ألا يتجاوز التعليق 1000 حرف';
+
+  @override
+  String get ratingPoor => 'ضعيف';
+
+  @override
+  String get ratingFair => 'مقبول';
+
+  @override
+  String get ratingGood => 'جيد';
+
+  @override
+  String get ratingVeryGood => 'جيد جداً';
+
+  @override
+  String get ratingExcellent => 'ممتاز';
+
+  @override
+  String get tapToRate => 'اضغط للتقييم';
+
+  @override
+  String get notificationTitleApproved => 'تمت الموافقة على الموعد';
+
+  @override
+  String get notificationTitleRejected => 'تم رفض الموعد';
+
+  @override
+  String get notificationTitleCancelled => 'تم إلغاء الموعد';
+
+  @override
+  String get notificationTitleCompleted => 'اكتمل الموعد';
+
+  @override
+  String get notificationCompleted => 'اكتمل موعدك. شكراً لزيارتك!';
+
+  @override
+  String get errorUserNotFound => 'لا يوجد حساب بهذا البريد الإلكتروني';
+
+  @override
+  String get errorWrongPassword => 'كلمة المرور غير صحيحة';
+
+  @override
+  String get errorInvalidCredential =>
+      'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+
+  @override
+  String get errorEmailInUse => 'يوجد حساب مسجل بهذا البريد الإلكتروني';
+
+  @override
+  String get errorInvalidEmail => 'البريد الإلكتروني غير صالح';
+
+  @override
+  String get errorAccountDisabled => 'تم تعطيل حسابك. يرجى التواصل مع العيادة.';
+
+  @override
+  String get errorTooManyRequests => 'محاولات كثيرة. يرجى المحاولة لاحقاً';
+
+  @override
+  String get errorWeakPassword => 'كلمة المرور ضعيفة';
+
+  @override
+  String get errorRequiresRecentLogin =>
+      'يرجى تسجيل الدخول مجدداً لإتمام هذا الإجراء';
+
+  @override
+  String get errorProfileSaveFailed =>
+      'تعذر حفظ ملفك الشخصي. يرجى التحقق من الاتصال والمحاولة مجدداً.';
+
+  @override
+  String get errorUserDataNotFound =>
+      'لم يتم العثور على بيانات الحساب. يرجى التواصل مع العيادة.';
+
+  @override
+  String get errorPermissionDenied => 'ليست لديك صلاحية لتنفيذ هذا الإجراء';
+
+  @override
+  String get errorNotFound => 'العنصر المطلوب غير موجود';
+
+  @override
+  String get paid => 'مدفوع';
 }

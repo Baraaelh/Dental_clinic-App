@@ -13,6 +13,7 @@ import '../../../dentists/presentation/controllers/dentist_controller.dart';
 import '../controllers/appointment_controller.dart';
 import '../widgets/time_slot_widget.dart';
 import 'payment_screen.dart';
+import '../../../../core/errors/error_messages.dart';
 
 class BookAppointmentScreen extends ConsumerStatefulWidget {
   const BookAppointmentScreen({super.key, required this.dentistId});
@@ -86,6 +87,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                 const SizedBox(height: 12),
                 Card(
                   child: TableCalendar(
+                    locale: Localizations.localeOf(context).languageCode,
                     firstDay: DateTime.now(),
                     lastDay: DateTime.now().add(const Duration(days: 90)),
                     focusedDay: _focusedDay,
@@ -192,7 +194,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
         },
         loading: () => const LoadingWidget(),
         error: (e, _) => AppErrorWidget(
-          message: e.toString(),
+          message: context.errorMessage(e),
           onRetry: () =>
               ref.refresh(dentistDetailProvider(widget.dentistId)),
         ),

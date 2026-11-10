@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/errors/app_exception.dart';
+import '../../../../core/errors/error_messages.dart';
 import '../../domain/models/user_model.dart';
 
 class AuthRemoteDatasource {
@@ -36,12 +37,16 @@ class AuthRemoteDatasource {
           .doc(user.uid)
           .get();
 
-      if (!doc.exists) throw const AuthException('User data not found');
+      if (!doc.exists) {
+        throw const AuthException('User data not found',
+            code: AppErrorCodes.userDataNotFound);
+      }
 
       final userModel = UserModel.fromFirestore(doc);
       if (!userModel.isActive) {
         await _auth.signOut();
-        throw const AuthException('Your account has been disabled. Please contact support.');
+        throw const AuthException('Account disabled',
+            code: AppErrorCodes.accountDisabled);
       }
 
       return userModel;
@@ -119,8 +124,8 @@ class AuthRemoteDatasource {
         debugPrint('AuthDatasource.register: rollback failed — $deleteError');
         await _auth.signOut();
       }
-      throw const AuthException(
-          'Could not save your profile. Please check your connection and try again.');
+      throw const AuthException('Profile write failed',
+          code: AppErrorCodes.profileSaveFailed);
     }
 
     // Step 5: Send verification email — non-fatal.
