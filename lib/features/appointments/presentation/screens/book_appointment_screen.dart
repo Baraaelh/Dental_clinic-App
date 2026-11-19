@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -117,6 +118,15 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                         shape: BoxShape.circle,
                       ),
                       disabledTextStyle: TextStyle(color: AppColors.textHint),
+                    ),
+                    daysOfWeekStyle: DaysOfWeekStyle(
+                      // Arabic weekday names are long; use one-letter forms.
+                      dowTextFormatter: (date, locale) => DateFormat(
+                              locale.toString().startsWith('ar')
+                                  ? 'EEEEE'
+                                  : 'E',
+                              locale.toString())
+                          .format(date),
                     ),
                     headerStyle: const HeaderStyle(
                       formatButtonVisible: false,

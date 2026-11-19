@@ -302,7 +302,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String experienceYears(int years) {
-    return '$years years of experience';
+    String _temp0 = intl.Intl.pluralLogic(
+      years,
+      locale: localeName,
+      other: '$years years of experience',
+      one: '1 year of experience',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1016,4 +1022,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get endTimeAfterStart => 'End time must be after start time';
+
+  @override
+  String experienceShort(int years) {
+    String _temp0 = intl.Intl.pluralLogic(
+      years,
+      locale: localeName,
+      other: '$years yrs',
+      one: '1 yr',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rolePatient => 'Patient';
+
+  @override
+  String get roleAdmin => 'Admin';
+
+  @override
+  String get navProfile => 'Profile';
 }

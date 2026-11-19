@@ -102,7 +102,7 @@
   "searchDentists": "Search dentists...",
   "specialization": "Specialization",
   "experience": "Experience",
-  "experienceYears": "{years} years of experience",
+  "experienceYears": "{years, plural, =1{1 year of experience} other{{years} years of experience}}",
   "@experienceYears": {
     "placeholders": {
       "years": {"type": "int"}
@@ -366,5 +366,10 @@
   "errorNotFound": "The requested item was not found",
   "paid": "Paid",
   "loadMore": "Load more",
-  "endTimeAfterStart": "End time must be after start time"
+  "endTimeAfterStart": "End time must be after start time",
+  "experienceShort": "{years, plural, =1{1 yr} other{{years} yrs}}",
+  "@experienceShort": {"placeholders": {"years": {"type": "int"}}},
+  "rolePatient": "Patient",
+  "roleAdmin": "Admin",
+  "navProfile": "Profile"
 }

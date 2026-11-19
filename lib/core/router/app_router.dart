@@ -343,7 +343,7 @@ class _ScaffoldWithNavBarState extends ConsumerState<_ScaffoldWithNavBar> {
           BottomNavigationBarItem(
             icon: const Icon(Icons.person_outline),
             activeIcon: const Icon(Icons.person),
-            label: AppLocalizations.of(context).profile,
+            label: AppLocalizations.of(context).navProfile,
           ),
         ],
       ),

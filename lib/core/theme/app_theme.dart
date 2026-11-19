@@ -105,7 +105,11 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.background,
         selectedColor: AppColors.primary.withValues(alpha: 0.15),
-        labelStyle: const TextStyle(fontSize: 12),
+        // Theme font (Cairo in Arabic); a bare TextStyle falls back to a
+        // font without Arabic glyphs.
+        labelStyle: AppTextStyles.getTextTheme(isArabic)
+            .labelMedium
+            ?.copyWith(fontSize: 12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),

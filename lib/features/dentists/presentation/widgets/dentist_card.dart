@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/rating_bar.dart';
 import '../../domain/models/dentist_model.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class DentistCard extends StatelessWidget {
   const DentistCard({super.key, required this.dentist, this.onTap});
@@ -69,7 +70,7 @@ class DentistCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${dentist.experience} yrs',
+                          AppLocalizations.of(context).experienceShort(dentist.experience),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: AppColors.textSecondary,
                               ),

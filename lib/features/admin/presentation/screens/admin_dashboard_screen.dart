@@ -50,13 +50,18 @@ class AdminDashboardScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           children: [
             statsAsync.when(
-              data: (stats) => GridView.count(
+              data: (stats) => GridView(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.3,
+                // Fixed card height (not an aspect ratio), so cards don't get
+                // too short on narrow phones; StatCard scales its text down
+                // if it still doesn't fit (e.g. large system font).
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  mainAxisExtent: 150,
+                ),
                 children: [
                   StatCard(
                     title: l10n.totalPatients,

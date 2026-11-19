@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/models/service_model.dart';
+import '../../../../core/utils/money.dart';
 
 class ServiceCard extends StatelessWidget {
   const ServiceCard({super.key, required this.service, this.onTap});
@@ -22,7 +23,8 @@ class ServiceCard extends StatelessWidget {
             Expanded(
               flex: 3,
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(16)),
                 child: service.image.isNotEmpty
                     ? CachedNetworkImage(
                         imageUrl: service.image,
@@ -33,32 +35,32 @@ class ServiceCard extends StatelessWidget {
                     : _placeholder(),
               ),
             ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      service.title,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+            // Text takes the height it needs; the image above gets the rest,
+            // so large system fonts don't overflow the card.
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    service.title,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    formatPrice(AppLocalizations.of(context), service.price),
+                    style: const TextStyle(
+                      color: AppColors.secondary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'SAR ${service.price.toStringAsFixed(0)}',
-                      style: const TextStyle(
-                        color: AppColors.secondary,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -136,7 +138,7 @@ class ServiceCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'SAR ${service.price.toStringAsFixed(0)}',
+                  formatPrice(AppLocalizations.of(context), service.price),
                   style: const TextStyle(
                     color: AppColors.secondary,
                     fontWeight: FontWeight.bold,

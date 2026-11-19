@@ -671,7 +671,7 @@ abstract class AppLocalizations {
   /// No description provided for @experienceYears.
   ///
   /// In en, this message translates to:
-  /// **'{years} years of experience'**
+  /// **'{years, plural, =1{1 year of experience} other{{years} years of experience}}'**
   String experienceYears(int years);
 
   /// No description provided for @about.
@@ -2041,6 +2041,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'End time must be after start time'**
   String get endTimeAfterStart;
+
+  /// No description provided for @experienceShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{years, plural, =1{1 yr} other{{years} yrs}}'**
+  String experienceShort(int years);
+
+  /// No description provided for @rolePatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient'**
+  String get rolePatient;
+
+  /// No description provided for @roleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get roleAdmin;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
 }
 
 class _AppLocalizationsDelegate

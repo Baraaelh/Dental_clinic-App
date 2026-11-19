@@ -101,7 +101,7 @@
   "searchDentists": "ابحث عن طبيب...",
   "specialization": "التخصص",
   "experience": "الخبرة",
-  "experienceYears": "{years} سنوات خبرة",
+  "experienceYears": "{years, plural, =1{سنة خبرة واحدة} =2{سنتان من الخبرة} few{{years} سنوات خبرة} other{{years} سنة خبرة}}",
   "@experienceYears": {
     "placeholders": {
       "years": {"type": "int"}
@@ -361,5 +361,9 @@
   "errorNotFound": "العنصر المطلوب غير موجود",
   "paid": "مدفوع",
   "loadMore": "عرض المزيد",
-  "endTimeAfterStart": "يجب أن يكون وقت النهاية بعد وقت البداية"
+  "endTimeAfterStart": "يجب أن يكون وقت النهاية بعد وقت البداية",
+  "experienceShort": "{years, plural, =1{سنة} =2{سنتان} few{{years} سنوات} other{{years} سنة}}",
+  "rolePatient": "مريض",
+  "roleAdmin": "مدير",
+  "navProfile": "حسابي"
 }
