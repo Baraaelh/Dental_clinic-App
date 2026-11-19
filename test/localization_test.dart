@@ -38,6 +38,16 @@ void main() {
     });
   });
 
+  test('years of experience use correct plural forms', () {
+    expect(ar.experienceYears(1), 'سنة خبرة واحدة');
+    expect(ar.experienceYears(2), 'سنتان من الخبرة');
+    expect(ar.experienceYears(9), '9 سنوات خبرة');
+    expect(ar.experienceYears(12), '12 سنة خبرة');
+    expect(ar.experienceShort(9), '9 سنوات');
+    expect(en.experienceYears(1), '1 year of experience');
+    expect(en.experienceShort(12), '12 yrs');
+  });
+
   test('status and weekday labels are translated', () {
     expect(appointmentStatusLabel(ar, 'Pending'), 'قيد الانتظار');
     expect(appointmentStatusLabel(en, 'Approved'), 'Approved');

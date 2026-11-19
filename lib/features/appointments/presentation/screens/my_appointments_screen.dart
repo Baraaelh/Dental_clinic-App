@@ -33,6 +33,10 @@ class MyAppointmentsScreen extends ConsumerWidget {
         appBar: AppBar(
           title: Text(l10n.myAppointments),
           bottom: TabBar(
+            // The theme colours tabs for white backgrounds; this bar is blue.
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            indicatorColor: Colors.white,
             tabs: [
               Tab(text: l10n.upcoming),
               Tab(text: l10n.history),

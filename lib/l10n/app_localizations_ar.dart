@@ -300,7 +300,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String experienceYears(int years) {
-    return '$years سنوات خبرة';
+    String _temp0 = intl.Intl.pluralLogic(
+      years,
+      locale: localeName,
+      other: '$years سنة خبرة',
+      few: '$years سنوات خبرة',
+      two: 'سنتان من الخبرة',
+      one: 'سنة خبرة واحدة',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1005,4 +1013,26 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get endTimeAfterStart => 'يجب أن يكون وقت النهاية بعد وقت البداية';
+
+  @override
+  String experienceShort(int years) {
+    String _temp0 = intl.Intl.pluralLogic(
+      years,
+      locale: localeName,
+      other: '$years سنة',
+      few: '$years سنوات',
+      two: 'سنتان',
+      one: 'سنة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rolePatient => 'مريض';
+
+  @override
+  String get roleAdmin => 'مدير';
+
+  @override
+  String get navProfile => 'حسابي';
 }

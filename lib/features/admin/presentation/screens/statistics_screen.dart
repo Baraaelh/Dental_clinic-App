@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
@@ -197,10 +198,12 @@ class _AppointmentsLineChart extends StatelessWidget {
       spots.add(FlSpot(i.toDouble(), total.toDouble()));
     }
 
+    // Round up to a multiple of 10 so axis labels stay evenly spaced.
     final maxY = spots.isEmpty
         ? 10.0
-        : (spots.map((s) => s.y).reduce((a, b) => a > b ? a : b) * 1.2)
-            .ceilToDouble();
+        : ((spots.map((s) => s.y).reduce((a, b) => a > b ? a : b) * 1.2) / 10)
+                .ceil() *
+            10.0;
 
     return Container(
       height: 220,
@@ -233,13 +236,17 @@ class _AppointmentsLineChart extends StatelessWidget {
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
+                interval: 1,
                 getTitlesWidget: (value, meta) {
                   final idx = value.toInt();
-                  if (idx < 0 || idx >= months.length) {
+                  if (value != idx || idx < 0 || idx >= months.length) {
                     return const SizedBox();
                   }
-                  final label = months[idx].length >= 7
-                      ? months[idx].substring(5, 7)
+                  // "2026-06" -> short month name in the app language.
+                  final parts = months[idx].split('-');
+                  final label = parts.length == 2
+                      ? DateFormat.MMM().format(
+                          DateTime(int.parse(parts[0]), int.parse(parts[1])))
                       : months[idx];
                   return Text(label,
                       style: const TextStyle(fontSize: 10));

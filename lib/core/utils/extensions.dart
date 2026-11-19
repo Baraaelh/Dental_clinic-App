@@ -100,5 +100,4 @@ extension ContextExtensions on BuildContext {
 
 extension DoubleExtensions on double {
   String get formatted => NumberFormat('#,##0.##').format(this);
-  String get currency => 'SAR ${NumberFormat('#,##0.##').format(this)}';
 }

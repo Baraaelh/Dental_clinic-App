@@ -19,6 +19,7 @@ import '../../../../shared/widgets/shimmer_loading.dart';
 import '../../../services/domain/models/service_model.dart';
 import '../../../services/presentation/controllers/services_controller.dart';
 import '../../../../core/errors/error_messages.dart';
+import '../../../../core/utils/money.dart';
 
 class ManageServicesScreen extends ConsumerWidget {
   const ManageServicesScreen({super.key});
@@ -169,7 +170,7 @@ class _ServiceTile extends StatelessWidget {
         title: Text(service.title,
             style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text(
-          '\$${service.price.toStringAsFixed(2)}',
+          formatPrice(AppLocalizations.of(context), service.price),
           style: const TextStyle(color: AppColors.primary),
         ),
         trailing: Row(

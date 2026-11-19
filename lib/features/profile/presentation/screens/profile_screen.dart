@@ -70,7 +70,9 @@ class ProfileScreen extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            user.role.toUpperCase(),
+                            user.isAdmin
+                                ? AppLocalizations.of(context).roleAdmin
+                                : AppLocalizations.of(context).rolePatient,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,

@@ -50,16 +50,17 @@ class DentistDetailsScreen extends ConsumerWidget {
                               child: const Icon(
                                 Icons.person,
                                 size: 80,
-                                color: AppColors.primary,
+                                color: Colors.white70,
                               ),
                             ),
                           )
                         : Container(
                             color: AppColors.primary.withValues(alpha: 0.1),
+                            // White: the header behind it is primary blue.
                             child: const Icon(
                               Icons.person,
                               size: 80,
-                              color: AppColors.primary,
+                              color: Colors.white70,
                             ),
                           ),
                   ),
@@ -133,7 +134,7 @@ class DentistDetailsScreen extends ConsumerWidget {
                       _InfoRow(
                         icon: Icons.work_outline,
                         label:
-                            '${dentist.experience} ${l10n.experienceYears(dentist.experience)}',
+                            l10n.experienceYears(dentist.experience),
                         color: AppColors.secondary,
                       ),
                       const SizedBox(height: 20),
